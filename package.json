@@ -1,7 +1,7 @@
 {
   "name": "ebr-tracker-v2",
   "private": true,
-  "homepage": "https://coreyRalli.github.io/eb-campaign-tracker/",
+  "homepage": "https://campaign-tracker.shoutingattheinter.net",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
