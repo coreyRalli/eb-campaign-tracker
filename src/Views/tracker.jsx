@@ -1,0 +1,353 @@
+import { useReducer, useState, useEffect } from "react";
+import { generateWeather, LOCATIONS, PATHS } from "../data";
+import reducer, { initialState } from "../reducer/reducer";
+import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE } from '../reducer/actions'
+
+const Select = ({ options, value, onChange, label, id, initOptionText }) =>
+    <div className="select-field">
+        <label htmlFor={id}>{label}</label>
+        <select
+            value={value}
+            onChange={({ target }) => onChange(target.value)}
+            id={id}>
+            <option value={""}>{initOptionText}</option>
+            {options.map(item => (<option key={item} value={item}>{item}</option>))}
+        </select>
+    </div>;
+
+const ItemInput = ({ text, onChange, onSubmit, placeholder, id, children }) =>
+    <form
+        className="new-item-form"
+        onSubmit={onSubmit}>
+        <input
+            id={id}
+            type="text"
+            onChange={({ target }) => onChange(target.value)}
+            value={text}
+            placeholder={placeholder} />
+        <button
+            disabled={(text === "")}>
+            Add
+        </button>
+
+        {children}
+    </form>
+
+const LineItem = ({ text, onDelete, children }) =>
+    <>
+        <li>
+            <div className="line-item">
+                <span>{text}</span>
+                <button onClick={() => onDelete()}>
+                    <span className="material-symbols-outlined delete">delete</span>
+                </button>
+            </div>
+            {children}
+        </li>
+    </>
+
+const Tracker = () => {
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const [newEventText, setNewEventText] = useState("");
+    const [newRewardText, setNewRewardText] = useState("");
+    const [newMissionText, setNewMissionText] = useState("");
+    const [newRangerText, setNewRangerText] = useState("");
+
+    const [progressChecked, setProgressChecked] = useState(true);
+
+    const [showRangerEdit, setShowRangerEdit] = useState(false);
+
+    useEffect(() => {
+        const campaignState = localStorage.getItem("campaign-state");
+        if (campaignState) {
+            dispatch({ type: 'hydrate', payload: { data: JSON.parse(campaignState) } });
+        }
+    }, [])
+
+    useEffect(() => {
+        if (state !== initialState)
+            localStorage.setItem("campaign-state", JSON.stringify(state));
+    }, [state]);
+
+    const onNewEventSubmit = (e) => {
+        e.preventDefault();
+        dispatch(ADD_EVENT(newEventText));
+        setNewEventText("");
+    }
+
+    const onNewRangerSubmit = (e) => {
+        e.preventDefault();
+        dispatch(ADD_RANGER(newRangerText));
+        setNewRangerText("");
+    }
+
+    const onNewRewardSubmit = (e) => {
+        e.preventDefault();
+        dispatch(ADD_REWARDS(newRewardText));
+        setNewRewardText("");
+    }
+
+    const onNewMissionSubmit = (e) => {
+        e.preventDefault();
+        dispatch(ADD_MISSION(newMissionText, progressChecked ? 0 : -1));
+        setNewMissionText("");
+    }
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", () => {
+            const text = reader.result;
+            const obj = JSON.parse(text);
+
+            dispatch(HYDRATE(obj));
+        })
+
+        if (file) {
+            reader.readAsText(file);
+        }
+    }
+
+    const handleExportFile = async () => {
+        const campaign = localStorage.getItem("campaign-state");
+
+        const blob = new Blob([campaign], { type: "plain/text" });
+
+        const handle = await showSaveFilePicker({
+            suggestedName: `earthborne-rangers-campaign`,
+            types: [
+                {
+                    description: "Exported Earthborne Rangers Campaign",
+                    accept: {
+                        "text/plain": [".txt"],
+                        "application/json": [".json"]
+                    }
+                }
+            ]
+        });
+
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }
+
+    return (
+        <>
+            <div className="header">
+                <h1>Campaign Tracker </h1>
+
+                <p>DAY</p>
+                <div className="day-selector-container">
+                    <button
+                        onClick={() => dispatch(DECREMENT_DAY())}
+                        disabled={state.day <= 1}>
+                        <span className="material-symbols-outlined">arrow_left</span>
+                    </button>
+                    <p>{state.day}</p>
+                    <button
+                        onClick={() => dispatch(INCREMENT_DAY())}
+                        disabled={state.day >= 30}>
+                        <span className="material-symbols-outlined">arrow_right</span>
+                    </button>
+                </div>
+                <div>
+                    <p>{generateWeather(state.day)}</p>
+                </div>
+
+                <Select
+                    options={LOCATIONS}
+                    value={state.location}
+                    id={"location-select"}
+                    onChange={(value) => dispatch(CHANGE_LOCATION(value))}
+                    label={"Location"}
+                    initOptionText={"Select a location"} />
+
+                <Select
+                    options={PATHS}
+                    value={state.terrain}
+                    id={"terrain-select"}
+                    onChange={(value) => dispatch(CHANGE_TERRIAN(value))}
+                    label={"Path Terrain"}
+                    initOptionText={"Select a terrain"} />
+            </div>
+
+            <div className="tracker-content">
+                <div className="section">
+                    <div>
+                        <h2>Rangers</h2>
+                    </div>
+
+                    {
+                        !showRangerEdit ?
+                            <p>
+                                {(state.rangers.length > 0) ? state.rangers.map(r => r.name).join(", ") : "No Rangers Added"}
+                                <button
+                                    onClick={(e) => setShowRangerEdit(true)}
+                                    className="textless-btn">
+                                    (EDIT)
+                                </button>
+                            </p> :
+                            <>
+                                <ItemInput
+                                    id={"new-ranger"}
+                                    text={newRangerText}
+                                    placeholder={"eg. Bob"}
+                                    onSubmit={onNewRangerSubmit}
+                                    onChange={(value) => setNewRangerText(value)} />
+
+                                <ul className="list">
+                                    {
+                                        state.rangers.map(ranger =>
+                                            <LineItem
+                                                text={ranger.name}
+                                                key={ranger.id}
+                                                onDelete={() => dispatch(REMOVE_RANGER(ranger.id))} />)
+                                    }
+                                </ul>
+
+                                <button onClick={(e) => setShowRangerEdit(false)}>
+                                    FINISH
+                                </button>
+                            </>
+                    }
+                </div>
+
+                <div className="section">
+                    <div>
+                        <h2>Notable Events</h2>
+                    </div>
+
+                    <ItemInput
+                        id={"new-notable-event"}
+                        text={newEventText}
+                        placeholder={"eg. Impressed Calypsa"}
+                        onSubmit={onNewEventSubmit}
+                        onChange={(value) => setNewEventText(value)} />
+
+                    <ul className="list">
+                        {
+                            state.events.map(event =>
+                                <LineItem
+                                    text={event.name}
+                                    key={event.id}
+                                    onDelete={() => dispatch(REMOVE_EVENT(event.id))} />)
+                        }
+                    </ul>
+                </div>
+
+                <div className="section">
+                    <h2>Missions</h2>
+                    <ItemInput
+                        id={"new-mission-form"}
+                        text={newMissionText}
+                        onSubmit={onNewMissionSubmit}
+                        onChange={(value) => setNewMissionText(value)}
+                        placeholder={"Eg. Biscuit Delivery"}>
+                    </ItemInput>
+
+                    <div>
+                        <input
+                            id="no-progress-indicator"
+                            checked={progressChecked}
+                            onChange={({ target }) => setProgressChecked(target.checked)}
+                            type="checkbox" />
+                        <label htmlFor="no-progress-indicator">Include Progress Markers</label>
+                    </div>
+
+                    <ul className="list">
+                        {
+                            state.missions.map(mission =>
+                                <LineItem
+                                    text={mission.name}
+                                    key={mission.id}
+                                    onDelete={() => dispatch(REMOVE_MISSION(mission.id))}>
+                                    {/* Mission markers */}
+                                    <>
+                                        <p className="mission-day">Day {mission.day}</p>
+                                        {
+                                            (mission.progress !== -1) &&
+                                            <div className="mission-progress-container">
+                                                <button
+                                                    disabled={(mission.progress <= 0)}
+                                                    onClick={(e) => dispatch(DECREMENT_MISSION_PROGRESS(mission.id))}>
+                                                    <span className="material-symbols-outlined">
+                                                        remove
+                                                    </span>
+                                                </button>
+
+                                                <div className={`mission-progress ${mission.progress === 1 ? "active" : ""}`}></div>
+                                                <div className={`mission-progress ${mission.progress === 2 ? "active" : ""}`}></div>
+                                                <div className={`mission-progress ${mission.progress === 3 ? "active" : ""}`}></div>
+
+                                                <button
+                                                    disabled={(mission.progress >= 3)}
+                                                    onClick={(e) => dispatch(INCREMENT_MISSION_PROGRESS(mission.id))}>
+                                                    <span className="material-symbols-outlined">
+                                                        add
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        }
+                                    </>
+                                </LineItem>)
+                        }
+                    </ul>
+                </div>
+
+                <div className="section">
+                    <div>
+                        <h2>Rewards</h2>
+
+                        <ItemInput
+                            id={"new-reward-form"}
+                            text={newRewardText}
+                            onChange={(value) => setNewRewardText(value)}
+                            placeholder={"eg. Carbon Rod"}
+                            onSubmit={onNewRewardSubmit} />
+
+                        <ul className="list">
+                            {
+                                state.rewards.map(reward =>
+                                    <LineItem
+                                        text={reward.name}
+                                        key={reward.id}
+                                        onDelete={() => dispatch(REMOVE_REWARDS(reward.id))} />)
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div className="section options">
+                    <h2>Options</h2>
+
+                    <button
+                        onClick={handleExportFile} 
+                        className="textless-btn fake-textless-btn">
+                        Save Campaign
+                    </button>
+
+                    <div className="import-campaign-container">
+                        <label className="textless-btn" htmlFor="import-campaign">Import Campaign</label>
+                        <input
+                            onChange={handleFileChange}
+                            id="import-campaign"
+                            accept=".txt, .json"
+                            type="file" />
+                    </div>
+                </div>
+
+                <p>
+                    A digital campaign tracker for Earthborne Rangers quickly cobbled together (at the moment only supports vanilla Lure Of The Valley). It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).
+                    Works best in a Chromium-based browser.
+                </p>
+
+                <p>I am in no way connected with Earthborne Games, I just think the game is neat.</p>
+                <p>- <a href="https://github.com/coreyRalli">Corey Ralli</a></p>
+            </div>
+        </>
+    )
+}
+
+export default Tracker;
