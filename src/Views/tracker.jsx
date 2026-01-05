@@ -36,8 +36,8 @@ const ItemInput = ({ text, onChange, onSubmit, placeholder, id, children }) =>
 const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
     const [isEditingText, setIsEditingText] = useState(false);
     const [textInput, setTextInput] = useState(text);
-    
-    return(<>
+
+    return (<>
         <li>
             <div className="line-item">
                 {
@@ -48,7 +48,10 @@ const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
                 {
                     (displayEdit && !isEditingText) &&
                     <>
-                        <button onClick={() => setIsEditingText(true)}>
+                        <button onClick={() => {
+                            setTextInput(text);
+                            setIsEditingText(true);
+                        }}>
                             <span className="material-symbols-outlined">edit</span>
                         </button>
                         <button onClick={() => onDelete()}>
@@ -59,22 +62,26 @@ const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
 
                 {
                     (displayEdit && isEditingText) &&
-                    <>
-                        <input 
+                    <div className="item-modification-input">
+                        <input
+                            type="text"
                             value={textInput}
-                            onChange={({target}) => setTextInput(target.value)}/>
-                        <button onClick={() => { 
-                            if (onTextUpdate)
-                                onTextUpdate(textInput);
+                            onChange={({ target }) => setTextInput(target.value)} />
+                        <button
+                            disabled={textInput === ""}
+                            onClick={() => {
+                                if (onTextUpdate)
+                                    onTextUpdate(textInput);
 
-                            setIsEditingText(false);
-                         }}>
+                                setIsEditingText(false);
+                            }}>
                             <span className="material-symbols-outlined">check</span>
                         </button>
-                        <button onClick={(e) => setIsEditingText(false)}>
+                        <button
+                            onClick={(e) => setIsEditingText(false)}>
                             <span className="material-symbols-outlined">close</span>
                         </button>
-                    </>
+                    </div>
                 }
             </div>
             {children}
@@ -226,7 +233,7 @@ const Tracker = () => {
                                 <button
                                     onClick={(e) => setShowRangerEdit(true)}
                                     className="textless-btn">
-                                    (EDIT)
+                                    EDIT
                                 </button>
                             </p> :
                             <>
@@ -257,9 +264,6 @@ const Tracker = () => {
                 <div className="section">
                     <div>
                         <h2>Notable Events</h2>
-                        <button onClick={() => setEventsEditOn(prev => !prev)}>
-                            EDIT
-                        </button>
                     </div>
 
                     <ItemInput
@@ -268,6 +272,17 @@ const Tracker = () => {
                         placeholder={"eg. Impressed Calypsa"}
                         onSubmit={onNewEventSubmit}
                         onChange={(value) => setNewEventText(value)} />
+
+                    <div>
+                        {
+                            (state.events.length > 0) &&
+                            <button
+                                className="textless-btn item-edit-btn"
+                                onClick={() => setEventsEditOn(prev => !prev)}>
+                                {eventsEditOn ? "FINISH" : "MODIFY"}
+                            </button>
+                        }
+                    </div>
 
                     <ul className="list">
                         {
@@ -285,9 +300,6 @@ const Tracker = () => {
                 <div className="section">
                     <div>
                         <h2>Missions</h2>
-                        <button onClick={() => setMissionsEditOn(prev => !prev)}>
-                            EDIT
-                        </button>
                     </div>
 
                     <ItemInput
@@ -305,6 +317,17 @@ const Tracker = () => {
                             onChange={({ target }) => setProgressChecked(target.checked)}
                             type="checkbox" />
                         <label htmlFor="no-progress-indicator">Include Progress Markers</label>
+                    </div>
+
+                    <div className="edit-list-btn-container">
+                        {
+                            (state.missions.length > 0) &&
+                            <button
+                                className="textless-btn item-edit-btn"
+                                onClick={() => setMissionsEditOn(prev => !prev)}>
+                                {missionsEditOn ? "FINISH" : "MODIFY"}
+                            </button>
+                        }
                     </div>
 
                     <ul className="list">
@@ -353,9 +376,6 @@ const Tracker = () => {
                     <div>
                         <div>
                             <h2>Rewards</h2>
-                            <button onClick={(e) => setRewardsEditOn(prev => !prev)}>
-                                EDIT
-                            </button>
                         </div>
 
                         <ItemInput
@@ -364,6 +384,17 @@ const Tracker = () => {
                             onChange={(value) => setNewRewardText(value)}
                             placeholder={"eg. Carbon Rod"}
                             onSubmit={onNewRewardSubmit} />
+
+                        <div>
+                            {
+                                (state.rewards.length > 0) &&
+                                <button
+                                    className="textless-btn item-edit-btn"
+                                    onClick={(e) => setRewardsEditOn(prev => !prev)}>
+                                    {rewardsEditOn ? "FINISH" : "MODIFY"}
+                                </button>
+                            }
+                        </div>
 
                         <ul className="list">
                             {

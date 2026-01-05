@@ -31,12 +31,24 @@ const reducer = (state, action) => {
             const newEvent = { id: crypto.randomUUID(), name: action.payload.name };
             return { ...state, events: [...state.events, newEvent] };
         case "update_event":
-            return {...state};
+            const updateEventList = structuredClone(state.events);
+            const eventToUpdateIndex = updateEventList.findIndex(e => e.id === action.payload.id);
+
+            if (eventToUpdateIndex !== -1)
+                updateEventList[eventToUpdateIndex].name = action.payload.newName;
+
+            return {...state, events: updateEventList};
         case "remove_event":
             const filteredEventList = structuredClone(state.events).filter(e => e.id !== action.payload.id);
             return { ...state, events: filteredEventList };
         case "update_mission":
-            return {...state};
+            const updateMissionList = structuredClone(state.missions);
+            const missionToUpdateIndex = updateMissionList.findIndex(m => m.id === action.payload.id);
+
+            if (missionToUpdateIndex !== -1)
+                updateMissionList[missionToUpdateIndex].name = action.payload.newName;
+
+            return {...state, missions: updateMissionList};
         case "add_mission":
             const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress };
             return { ...state, missions: [...state.missions, newMission] };
@@ -64,7 +76,13 @@ const reducer = (state, action) => {
             const newReward = { id: crypto.randomUUID(), name: action.payload.name };
             return {...state, rewards: [...state.rewards, newReward]};
         case "update_rewards":
-            return {...state}
+            const updateRewardsList = structuredClone(state.rewards);
+            const rewardToUpdateIndex = updateRewardsList.findIndex(m => m.id === action.payload.id);
+
+            if (rewardToUpdateIndex !== -1)
+                updateRewardsList[rewardToUpdateIndex].name = action.payload.newName;
+
+            return {...state, rewards: updateRewardsList};
         case "remove_rewards":
             const filteredRewardsList = structuredClone(state.rewards).filter(r => r.id !== action.payload.id);
             return { ...state, rewards: filteredRewardsList };
