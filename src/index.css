@@ -218,6 +218,10 @@ input[type="checkbox"] {
     color: var(--text-color);
 }
 
+.line-item button {
+    color: var(--text-color);
+}
+
 /* md and above */
 @media screen and (min-width: 768px) {
     .header {
@@ -258,10 +262,6 @@ input[type="checkbox"] {
         border-bottom: solid 1px var(--text-color);
         margin: 2px;
         justify-content: flex-start;
-    }
-
-    .line-item button {
-        color: var(--text-color);
     }
 
     .mission-day {
