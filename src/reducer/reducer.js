@@ -30,9 +30,13 @@ const reducer = (state, action) => {
         case "add_event":
             const newEvent = { id: crypto.randomUUID(), name: action.payload.name };
             return { ...state, events: [...state.events, newEvent] };
+        case "update_event":
+            return {...state};
         case "remove_event":
             const filteredEventList = [...state.events].filter(e => e.id !== action.payload.id);
             return { ...state, events: filteredEventList };
+        case "update_mission":
+            return {...state};
         case "add_mission":
             const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress };
             return { ...state, missions: [...state.missions, newMission] };
@@ -59,6 +63,8 @@ const reducer = (state, action) => {
         case "add_rewards":
             const newReward = { id: crypto.randomUUID(), name: action.payload.name };
             return {...state, rewards: [...state.rewards, newReward]};
+        case "update_rewards":
+            return {...state}
         case "remove_rewards":
             const filteredRewardsList = [...state.rewards].filter(r => r.id !== action.payload.id);
             return { ...state, rewards: filteredRewardsList };
