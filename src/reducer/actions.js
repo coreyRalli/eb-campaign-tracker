@@ -1,12 +1,15 @@
 export const ADD_RANGER = (name) => ({ type: "add_ranger", payload: { name } });
 export const REMOVE_RANGER = (id) => ({ type: "remove_ranger", payload: { id } });
 export const ADD_EVENT = (name) => ({ type: "add_event", payload: { name } });
+export const UPDATE_EVENT = (id, newName) => ({ type: "update_event", payload: { id, newName} });
 export const REMOVE_EVENT = (id) => ({ type: "remove_event", payload: { id } });
 export const ADD_MISSION = (name, progress) => ({ type: "add_mission", payload: { name, progress } });
+export const UPDATE_MISSION = (id, newName) => ({ type: "update_mission", payload: { id, newName } });
 export const REMOVE_MISSION = (id) => ({ type: "remove_mission", payload: { id } });
 export const INCREMENT_MISSION_PROGRESS = (id) => ({ type: "increment_mission_progress", payload: { id } });
 export const DECREMENT_MISSION_PROGRESS = (id) => ({ type: "decrement_mission_progress", payload: { id } });
 export const ADD_REWARDS = (name) => ({ type: "add_rewards", payload: { name } });
+export const UPDATE_REWARDS = (id, newName) => ({ type: "update_rewards", payload: { id, newName }});
 export const REMOVE_REWARDS = (id) => ({ type: "remove_rewards", payload: ({ id }) });
 export const INCREMENT_DAY = () => ({ type: "increment_day", payload: {} });
 export const DECREMENT_DAY = () => ({ type: "decrement_day", payload: {} });

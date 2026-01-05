@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect } from "react";
 import { generateWeather, LOCATIONS, PATHS } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE } from '../reducer/actions'
+import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS } from '../reducer/actions'
 
 const Select = ({ options, value, onChange, label, id, initOptionText }) =>
     <div className="select-field">
@@ -33,18 +33,61 @@ const ItemInput = ({ text, onChange, onSubmit, placeholder, id, children }) =>
         {children}
     </form>
 
-const LineItem = ({ text, onDelete, children }) =>
-    <>
+const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
+    const [isEditingText, setIsEditingText] = useState(false);
+    const [textInput, setTextInput] = useState(text);
+
+    return (<>
         <li>
             <div className="line-item">
-                <span>{text}</span>
-                <button onClick={() => onDelete()}>
-                    <span className="material-symbols-outlined delete">delete</span>
-                </button>
+                {
+                    (!isEditingText) &&
+                    <span>{text}</span>
+                }
+
+                {
+                    (displayEdit && !isEditingText) &&
+                    <>
+                        <button onClick={() => {
+                            setTextInput(text);
+                            setIsEditingText(true);
+                        }}>
+                            <span className="material-symbols-outlined">edit</span>
+                        </button>
+                        <button onClick={() => onDelete()}>
+                            <span className="material-symbols-outlined delete">delete</span>
+                        </button>
+                    </>
+                }
+
+                {
+                    (displayEdit && isEditingText) &&
+                    <div className="item-modification-input">
+                        <input
+                            type="text"
+                            value={textInput}
+                            onChange={({ target }) => setTextInput(target.value)} />
+                        <button
+                            disabled={textInput === ""}
+                            onClick={() => {
+                                if (onTextUpdate)
+                                    onTextUpdate(textInput);
+
+                                setIsEditingText(false);
+                            }}>
+                            <span className="material-symbols-outlined">check</span>
+                        </button>
+                        <button
+                            onClick={(e) => setIsEditingText(false)}>
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                }
             </div>
             {children}
         </li>
-    </>
+    </>)
+}
 
 const Tracker = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -53,6 +96,10 @@ const Tracker = () => {
     const [newRewardText, setNewRewardText] = useState("");
     const [newMissionText, setNewMissionText] = useState("");
     const [newRangerText, setNewRangerText] = useState("");
+
+    const [eventsEditOn, setEventsEditOn] = useState(false);
+    const [missionsEditOn, setMissionsEditOn] = useState(false);
+    const [rewardsEditOn, setRewardsEditOn] = useState(false);
 
     const [progressChecked, setProgressChecked] = useState(true);
 
@@ -186,7 +233,7 @@ const Tracker = () => {
                                 <button
                                     onClick={(e) => setShowRangerEdit(true)}
                                     className="textless-btn">
-                                    (EDIT)
+                                    EDIT
                                 </button>
                             </p> :
                             <>
@@ -226,10 +273,23 @@ const Tracker = () => {
                         onSubmit={onNewEventSubmit}
                         onChange={(value) => setNewEventText(value)} />
 
+                    <div>
+                        {
+                            (state.events.length > 0) &&
+                            <button
+                                className="textless-btn item-edit-btn"
+                                onClick={() => setEventsEditOn(prev => !prev)}>
+                                {eventsEditOn ? "FINISH" : "MODIFY"}
+                            </button>
+                        }
+                    </div>
+
                     <ul className="list">
                         {
                             state.events.map(event =>
                                 <LineItem
+                                    onTextUpdate={(text) => dispatch(UPDATE_EVENT(event.id, text))}
+                                    displayEdit={eventsEditOn}
                                     text={event.name}
                                     key={event.id}
                                     onDelete={() => dispatch(REMOVE_EVENT(event.id))} />)
@@ -238,7 +298,10 @@ const Tracker = () => {
                 </div>
 
                 <div className="section">
-                    <h2>Missions</h2>
+                    <div>
+                        <h2>Missions</h2>
+                    </div>
+
                     <ItemInput
                         id={"new-mission-form"}
                         text={newMissionText}
@@ -256,12 +319,25 @@ const Tracker = () => {
                         <label htmlFor="no-progress-indicator">Include Progress Markers</label>
                     </div>
 
+                    <div className="edit-list-btn-container">
+                        {
+                            (state.missions.length > 0) &&
+                            <button
+                                className="textless-btn item-edit-btn"
+                                onClick={() => setMissionsEditOn(prev => !prev)}>
+                                {missionsEditOn ? "FINISH" : "MODIFY"}
+                            </button>
+                        }
+                    </div>
+
                     <ul className="list">
                         {
                             state.missions.map(mission =>
                                 <LineItem
+                                    onTextUpdate={(text) => dispatch(UPDATE_MISSION(mission.id, text))}
                                     text={mission.name}
                                     key={mission.id}
+                                    displayEdit={missionsEditOn}
                                     onDelete={() => dispatch(REMOVE_MISSION(mission.id))}>
                                     {/* Mission markers */}
                                     <>
@@ -298,7 +374,9 @@ const Tracker = () => {
 
                 <div className="section">
                     <div>
-                        <h2>Rewards</h2>
+                        <div>
+                            <h2>Rewards</h2>
+                        </div>
 
                         <ItemInput
                             id={"new-reward-form"}
@@ -307,10 +385,23 @@ const Tracker = () => {
                             placeholder={"eg. Carbon Rod"}
                             onSubmit={onNewRewardSubmit} />
 
+                        <div>
+                            {
+                                (state.rewards.length > 0) &&
+                                <button
+                                    className="textless-btn item-edit-btn"
+                                    onClick={(e) => setRewardsEditOn(prev => !prev)}>
+                                    {rewardsEditOn ? "FINISH" : "MODIFY"}
+                                </button>
+                            }
+                        </div>
+
                         <ul className="list">
                             {
                                 state.rewards.map(reward =>
                                     <LineItem
+                                        onTextUpdate={(text) => dispatch(UPDATE_REWARDS(reward.id, text))}
+                                        displayEdit={rewardsEditOn}
                                         text={reward.name}
                                         key={reward.id}
                                         onDelete={() => dispatch(REMOVE_REWARDS(reward.id))} />)
@@ -323,7 +414,7 @@ const Tracker = () => {
                     <h2>Options</h2>
 
                     <button
-                        onClick={handleExportFile} 
+                        onClick={handleExportFile}
                         className="textless-btn fake-textless-btn">
                         Save Campaign
                     </button>

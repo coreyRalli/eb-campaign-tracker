@@ -204,6 +204,20 @@ input[type="checkbox"] {
     accent-color: var(--active-color);
 }
 
+.item-edit-btn {
+    margin-top: 12px;
+    padding: 0;
+}
+
+.item-modification-input {
+    display: flex;
+    align-items: center;
+}
+
+.item-modification-input button {
+    color: var(--text-color);
+}
+
 /* md and above */
 @media screen and (min-width: 768px) {
     .header {
@@ -244,6 +258,10 @@ input[type="checkbox"] {
         border-bottom: solid 1px var(--text-color);
         margin: 2px;
         justify-content: flex-start;
+    }
+
+    .line-item button {
+        color: var(--text-color);
     }
 
     .mission-day {
