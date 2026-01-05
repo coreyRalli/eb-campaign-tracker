@@ -25,7 +25,7 @@ const reducer = (state, action) => {
             const newRanger = { id: crypto.randomUUID(), name: action.payload.name };
             return { ...state, rangers: [...state.rangers, newRanger] };
         case "remove_ranger":
-            const filteredRangerList = [...state.rangers].filter(r => r.id !== action.payload.id);
+            const filteredRangerList = structuredClone(state.rangers).filter(r => r.id !== action.payload.id);
             return { ...state, rangers: filteredRangerList };
         case "add_event":
             const newEvent = { id: crypto.randomUUID(), name: action.payload.name };
@@ -33,7 +33,7 @@ const reducer = (state, action) => {
         case "update_event":
             return {...state};
         case "remove_event":
-            const filteredEventList = [...state.events].filter(e => e.id !== action.payload.id);
+            const filteredEventList = structuredClone(state.events).filter(e => e.id !== action.payload.id);
             return { ...state, events: filteredEventList };
         case "update_mission":
             return {...state};
@@ -41,10 +41,10 @@ const reducer = (state, action) => {
             const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress };
             return { ...state, missions: [...state.missions, newMission] };
         case "remove_mission":
-            const filteredMissionList = [...state.missions].filter(m => m.id !== action.payload.id);
+            const filteredMissionList = structuredClone(state.missions).filter(m => m.id !== action.payload.id);
             return { ...state, missions: filteredMissionList };
         case "increment_mission_progress":
-            const incMissionArr = [...state.missions];
+            const incMissionArr = structuredClone(state.missions);
             const incMissionIndex = incMissionArr.map(m => m.id).indexOf(action.payload.id);
 
             if (incMissionIndex !== -1)
@@ -52,7 +52,7 @@ const reducer = (state, action) => {
 
             return { ...state, missions: incMissionArr }
         case "decrement_mission_progress":
-            const decMissionArr = [...state.missions];
+            const decMissionArr = structuredClone(state.missions);
             const decMissionIndex = decMissionArr.map(m => m.id).indexOf(action.payload.id);
 
             if (decMissionIndex !== -1) {
@@ -66,7 +66,7 @@ const reducer = (state, action) => {
         case "update_rewards":
             return {...state}
         case "remove_rewards":
-            const filteredRewardsList = [...state.rewards].filter(r => r.id !== action.payload.id);
+            const filteredRewardsList = structuredClone(state.rewards).filter(r => r.id !== action.payload.id);
             return { ...state, rewards: filteredRewardsList };
         case "change_location":
             return { ...state, location: action.payload.location }
