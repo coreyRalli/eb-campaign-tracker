@@ -40,7 +40,7 @@ const reducer = (state, action) => {
             const filteredMissionList = [...state.missions].filter(m => m.id !== action.payload.id);
             return { ...state, missions: filteredMissionList };
         case "increment_mission_progress":
-            const incMissionArr = [...state.missions];
+            const incMissionArr = structuredClone(state.missions);
             const incMissionIndex = incMissionArr.map(m => m.id).indexOf(action.payload.id);
 
             if (incMissionIndex !== -1)
@@ -48,7 +48,7 @@ const reducer = (state, action) => {
 
             return { ...state, missions: incMissionArr }
         case "decrement_mission_progress":
-            const decMissionArr = [...state.missions];
+            const decMissionArr = structuredClone(state.missions);
             const decMissionIndex = decMissionArr.map(m => m.id).indexOf(action.payload.id);
 
             if (decMissionIndex !== -1) {
