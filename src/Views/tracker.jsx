@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect } from "react";
-import { generateWeather, LOCATIONS, PATHS } from "../data";
+import { generateDefaultNotes, generateWeather, LOCATIONS, PATHS } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS } from '../reducer/actions'
+import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE } from '../reducer/actions'
 
 const Select = ({ options, value, onChange, label, id, initOptionText }) =>
     <div className="select-field">
@@ -108,7 +108,12 @@ const Tracker = () => {
     useEffect(() => {
         const campaignState = localStorage.getItem("campaign-state");
         if (campaignState) {
-            dispatch({ type: 'hydrate', payload: { data: JSON.parse(campaignState) } });
+            const data = JSON.parse(campaignState);
+
+            if (!data.notes)
+                data.notes = generateDefaultNotes();
+
+            dispatch({ type: 'hydrate', payload: { data } });
         }
     }, [])
 
@@ -218,6 +223,16 @@ const Tracker = () => {
                     onChange={(value) => dispatch(CHANGE_TERRIAN(value))}
                     label={"Path Terrain"}
                     initOptionText={"Select a terrain"} />
+
+                <div className="daily-notes-container">
+                    <label htmlFor="daily-note">Daily Note</label>
+                    <input
+                        value={state.notes[state.day - 1].note}
+                        onChange={({target}) => dispatch(UPDATE_NOTE(target.value))}
+                        id="daily-note"
+                        type="text"
+                        placeholder={"Malady Counts, Story mission updates etc."} />
+                </div>
             </div>
 
             <div className="tracker-content">

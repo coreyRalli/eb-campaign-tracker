@@ -38,6 +38,19 @@ export const LOCATIONS = [
     "The Greenbridge"
 ];
 
+export const generateDefaultNotes = () => {
+  const dayNotes = [];
+  
+  for (var i = 0; i < 45; i++) {
+    dayNotes.push({ day: i + 1, note: "" });
+  }
+
+  dayNotes[0].note = "Campaign Guide - 1";
+  dayNotes[3].note = "Campaign Guide - 1.04";
+
+  return dayNotes;
+}
+
 export const PATHS = [
         "Old-growth", 
         "Mountain Pass", 

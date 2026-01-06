@@ -1,7 +1,9 @@
+import { generateDefaultNotes } from "../data";
+
 // Create some fake items
 const generateFakeitems = () => {
     const items = [];
-    
+
     for (var i = 0; i <= 200; i++) {
         items.push({ name: `Item ${i + 1}`, id: i });
     }
@@ -16,7 +18,8 @@ export const initialState = {
     rangers: [],
     events: [],
     missions: [],
-    rewards: []
+    rewards: [],
+    notes: generateDefaultNotes()
 }
 
 const reducer = (state, action) => {
@@ -37,7 +40,7 @@ const reducer = (state, action) => {
             if (eventToUpdateIndex !== -1)
                 updateEventList[eventToUpdateIndex].name = action.payload.newName;
 
-            return {...state, events: updateEventList};
+            return { ...state, events: updateEventList };
         case "remove_event":
             const filteredEventList = structuredClone(state.events).filter(e => e.id !== action.payload.id);
             return { ...state, events: filteredEventList };
@@ -48,7 +51,7 @@ const reducer = (state, action) => {
             if (missionToUpdateIndex !== -1)
                 updateMissionList[missionToUpdateIndex].name = action.payload.newName;
 
-            return {...state, missions: updateMissionList};
+            return { ...state, missions: updateMissionList };
         case "add_mission":
             const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress };
             return { ...state, missions: [...state.missions, newMission] };
@@ -74,7 +77,7 @@ const reducer = (state, action) => {
             return { ...state, missions: decMissionArr };
         case "add_rewards":
             const newReward = { id: crypto.randomUUID(), name: action.payload.name };
-            return {...state, rewards: [...state.rewards, newReward]};
+            return { ...state, rewards: [...state.rewards, newReward] };
         case "update_rewards":
             const updateRewardsList = structuredClone(state.rewards);
             const rewardToUpdateIndex = updateRewardsList.findIndex(m => m.id === action.payload.id);
@@ -82,20 +85,28 @@ const reducer = (state, action) => {
             if (rewardToUpdateIndex !== -1)
                 updateRewardsList[rewardToUpdateIndex].name = action.payload.newName;
 
-            return {...state, rewards: updateRewardsList};
+            return { ...state, rewards: updateRewardsList };
         case "remove_rewards":
             const filteredRewardsList = structuredClone(state.rewards).filter(r => r.id !== action.payload.id);
             return { ...state, rewards: filteredRewardsList };
         case "change_location":
-            return { ...state, location: action.payload.location }
+            return { ...state, location: action.payload.location };
         case "change_terrain":
-            return { ...state, terrain: action.payload.terrain }
+            return { ...state, terrain: action.payload.terrain };
         case "increment_day":
-            return { ...state, day: state.day + 1 }
+            return { ...state, day: state.day + 1 };
         case "decrement_day":
-            return { ...state, day: state.day - 1 }
+            return { ...state, day: state.day - 1 };
+        case "update_day_note":
+            const notes = structuredClone(state.notes);
+            const noteIndex = notes.findIndex(n => state.day === n.day);
+
+            if (noteIndex !== -1)
+                notes[noteIndex].note = action.payload.note;
+
+            return { ...state, notes };
         case "hydrate":
-            return { ...action.payload.data}
+            return { ...action.payload.data }
         default:
             return { ...state }
     }

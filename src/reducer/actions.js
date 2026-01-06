@@ -15,4 +15,5 @@ export const INCREMENT_DAY = () => ({ type: "increment_day", payload: {} });
 export const DECREMENT_DAY = () => ({ type: "decrement_day", payload: {} });
 export const CHANGE_LOCATION = (location) => ({ type: "change_location", payload: { location } });
 export const CHANGE_TERRIAN = (terrain) => ({ type: "change_terrain", payload: { terrain } });
+export const UPDATE_NOTE = (note) => ({ type: "update_day_note", payload: { note } })
 export const HYDRATE = (data) => ({ type: "hydrate", payload: { data } });
