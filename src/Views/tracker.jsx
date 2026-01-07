@@ -1,93 +1,10 @@
 import { useReducer, useState, useEffect } from "react";
 import { generateDefaultNotes, generateWeather, LOCATIONS, PATHS } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE } from '../reducer/actions'
-
-const Select = ({ options, value, onChange, label, id, initOptionText }) =>
-    <div className="select-field">
-        <label htmlFor={id}>{label}</label>
-        <select
-            value={value}
-            onChange={({ target }) => onChange(target.value)}
-            id={id}>
-            <option value={""}>{initOptionText}</option>
-            {options.map(item => (<option key={item} value={item}>{item}</option>))}
-        </select>
-    </div>;
-
-const ItemInput = ({ text, onChange, onSubmit, placeholder, id, children }) =>
-    <form
-        className="new-item-form"
-        onSubmit={onSubmit}>
-        <input
-            id={id}
-            type="text"
-            onChange={({ target }) => onChange(target.value)}
-            value={text}
-            placeholder={placeholder} />
-        <button
-            disabled={(text === "")}>
-            Add
-        </button>
-
-        {children}
-    </form>
-
-const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
-    const [isEditingText, setIsEditingText] = useState(false);
-    const [textInput, setTextInput] = useState(text);
-
-    return (<>
-        <li>
-            <div className="line-item">
-                {
-                    (!isEditingText) &&
-                    <span>{text}</span>
-                }
-
-                {
-                    (displayEdit && !isEditingText) &&
-                    <>
-                        <button onClick={() => {
-                            setTextInput(text);
-                            setIsEditingText(true);
-                        }}>
-                            <span className="material-symbols-outlined">edit</span>
-                        </button>
-                        <button onClick={() => onDelete()}>
-                            <span className="material-symbols-outlined delete">delete</span>
-                        </button>
-                    </>
-                }
-
-                {
-                    (displayEdit && isEditingText) &&
-                    <div className="item-modification-input">
-                        <input
-                            type="text"
-                            value={textInput}
-                            onChange={({ target }) => setTextInput(target.value)} />
-                        <button
-                            disabled={textInput === ""}
-                            onClick={() => {
-                                if (onTextUpdate)
-                                    onTextUpdate(textInput);
-
-                                setIsEditingText(false);
-                            }}>
-                            <span className="material-symbols-outlined">check</span>
-                        </button>
-                        <button
-                            onClick={(e) => setIsEditingText(false)}>
-                            <span className="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
-                }
-            </div>
-            {children}
-        </li>
-    </>)
-}
+import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE } from '../reducer/actions';
+import Select from "../components/Select";
+import ItemInput from "../components/iteminput";
+import LineItem from "../components/LineItem";
 
 const Tracker = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
