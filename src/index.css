@@ -240,6 +240,10 @@ input[type="checkbox"] {
     color: var(--text-color);
 }
 
+.weather-report {
+    text-align: center;
+}
+
 /* md and above */
 @media screen and (min-width: 768px) {
     .header {

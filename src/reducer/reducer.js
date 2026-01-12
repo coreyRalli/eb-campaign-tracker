@@ -1,15 +1,4 @@
-import { generateDefaultNotes } from "../data";
-
-// Create some fake items
-const generateFakeitems = () => {
-    const items = [];
-
-    for (var i = 0; i <= 200; i++) {
-        items.push({ name: `Item ${i + 1}`, id: i });
-    }
-
-    return items;
-}
+import { CAMPAIGNS, generateDefaultNotes } from "../data";
 
 export const initialState = {
     location: "",
@@ -19,7 +8,8 @@ export const initialState = {
     events: [],
     missions: [],
     rewards: [],
-    notes: generateDefaultNotes()
+    notes: generateDefaultNotes(),
+    campaign: CAMPAIGNS[0]
 }
 
 const reducer = (state, action) => {
@@ -105,6 +95,16 @@ const reducer = (state, action) => {
                 notes[noteIndex].note = action.payload.note;
 
             return { ...state, notes };
+        case "update_campaign":
+            let newNotes = [...state.notes];
+            let newLocation = state.location;
+        
+            // Handling Changing Campaigns
+            if (state.campaign !== action.payload.name) {
+                newNotes = generateDefaultNotes(action.payload.name);
+                newLocation = "";
+            }
+            return { ...state, campaign: action.payload.name, notes: newNotes, location: newLocation, day: (action.payload.name !== "Lure Of The Valley" && state.day > 30) ? 30 : state.day }
         case "hydrate":
             return { ...action.payload.data }
         default:

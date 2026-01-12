@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect } from "react";
-import { generateDefaultNotes, generateWeather, LOCATIONS, PATHS } from "../data";
+import { CAMPAIGNS, generateArcologyWeather, generateDefaultNotes, generateWeather, LOCATIONS, LOCATIONS_LOTA, PATHS, PATHS_LOTA } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE } from '../reducer/actions';
+import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE, UPDATE_CAMPAIGN } from '../reducer/actions';
 import Select from "../components/Select";
 import ItemInput from "../components/iteminput";
 import LineItem from "../components/LineItem";
@@ -21,6 +21,8 @@ const Tracker = () => {
     const [progressChecked, setProgressChecked] = useState(true);
 
     const [showRangerEdit, setShowRangerEdit] = useState(false);
+    const [showCampaignEdit, setShowCampaignEdit] = useState(false);
+    const [tempCampaign, setTempCampaign] = useState(CAMPAIGNS[0]);
 
     useEffect(() => {
         const campaignState = localStorage.getItem("campaign-state");
@@ -29,6 +31,9 @@ const Tracker = () => {
 
             if (!data.notes)
                 data.notes = generateDefaultNotes();
+
+            if (!data.campaign)
+                data.campaign = CAMPAIGNS[0];
 
             dispatch({ type: 'hydrate', payload: { data } });
         }
@@ -61,6 +66,11 @@ const Tracker = () => {
         e.preventDefault();
         dispatch(ADD_MISSION(newMissionText, progressChecked ? 0 : -1));
         setNewMissionText("");
+    }
+
+    const handleSetNewCampaignClick = () => {
+        dispatch(UPDATE_CAMPAIGN(tempCampaign));
+        setShowCampaignEdit(false);
     }
 
     const handleFileChange = (e) => {
@@ -102,10 +112,43 @@ const Tracker = () => {
         await writable.close();
     }
 
+    const maxDayDisabled = () => {
+        if (state.campaign === CAMPAIGNS[0])
+            return (state.day >= 45);
+        
+        return (state.day >= 30);
+    }
+
     return (
         <>
             <div className="header">
                 <h1>Campaign Tracker </h1>
+
+                {
+                    (showCampaignEdit) ?
+                        <>
+                            <Select
+                                label={"Campaign Type"}
+                                options={CAMPAIGNS}
+                                value={tempCampaign}
+                                id={"campaign-select"}
+                                onChange={(value) => setTempCampaign(value)}
+                                excludeEmptyOption />
+                            <button
+                                onClick={handleSetNewCampaignClick}
+                                className="textless-btn">
+                                FINISH
+                            </button>
+                        </> :
+                        <p>
+                            {state.campaign}
+                            <button
+                                onClick={() => setShowCampaignEdit(true)}
+                                className="textless-btn">
+                                CHANGE
+                            </button>
+                        </p>
+                }
 
                 <p>DAY</p>
                 <div className="day-selector-container">
@@ -117,16 +160,21 @@ const Tracker = () => {
                     <p>{state.day}</p>
                     <button
                         onClick={() => dispatch(INCREMENT_DAY())}
-                        disabled={state.day >= 30}>
+                        disabled={maxDayDisabled()}>
                         <span className="material-symbols-outlined">arrow_right</span>
                     </button>
                 </div>
-                <div>
-                    <p>{generateWeather(state.day)}</p>
+                <div className="weather-report">
+                    <p>{(state.campaign === CAMPAIGNS[1]) ? "(Valley)" : ""} {generateWeather(state.day, state.campaign)}</p>
+
+                    {
+                        (state.campaign === CAMPAIGNS[1]) &&
+                        <p>(Arcology) {generateArcologyWeather(state.day)}</p>
+                    }
                 </div>
 
                 <Select
-                    options={LOCATIONS}
+                    options={(state.campaign === CAMPAIGNS[1]) ? LOCATIONS_LOTA : LOCATIONS}
                     value={state.location}
                     id={"location-select"}
                     onChange={(value) => dispatch(CHANGE_LOCATION(value))}
@@ -134,7 +182,7 @@ const Tracker = () => {
                     initOptionText={"Select a location"} />
 
                 <Select
-                    options={PATHS}
+                    options={(state.campaign === CAMPAIGNS[1]) ? PATHS_LOTA : PATHS}
                     value={state.terrain}
                     id={"terrain-select"}
                     onChange={(value) => dispatch(CHANGE_TERRIAN(value))}
@@ -145,10 +193,10 @@ const Tracker = () => {
                     <label htmlFor="daily-note">Daily Note</label>
                     <input
                         value={state.notes[state.day - 1].note}
-                        onChange={({target}) => dispatch(UPDATE_NOTE(target.value))}
+                        onChange={({ target }) => dispatch(UPDATE_NOTE(target.value))}
                         id="daily-note"
                         type="text"
-                        placeholder={"Malady Counts, Story mission updates etc."} />
+                        placeholder={"Campaign Guide, Ranger Report Modifiers Etc."} />
                 </div>
             </div>
 
@@ -186,7 +234,7 @@ const Tracker = () => {
                                     }
                                 </ul>
 
-                                <button onClick={(e) => setShowRangerEdit(false)}>
+                                <button className="textless-btn" onClick={(e) => setShowRangerEdit(false)}>
                                     FINISH
                                 </button>
                             </>
@@ -362,7 +410,7 @@ const Tracker = () => {
                 </div>
 
                 <p>
-                    A digital campaign tracker for Earthborne Rangers quickly cobbled together (at the moment only supports vanilla Lure Of The Valley). It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).
+                    A digital campaign tracker for Earthborne Rangers I quickly cobbled together. It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).
                     Works best in a Chromium-based browser.
                 </p>
 

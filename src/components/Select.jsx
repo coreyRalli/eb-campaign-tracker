@@ -5,7 +5,7 @@ const Select = ({ options, value, onChange, label, id, initOptionText }) =>
             value={value}
             onChange={({ target }) => onChange(target.value)}
             id={id}>
-            <option value={""}>{initOptionText}</option>
+            {(initOptionText) &&<option value={""}>{initOptionText}</option>}
             {options.map(item => (<option key={item} value={item}>{item}</option>))}
         </select>
     </div>;
