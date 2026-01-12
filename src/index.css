@@ -10,7 +10,7 @@
     color: rgb(209, 96, 96);
 }
 
-a:visited {
+a, a:visited {
     color: var(--text-color);
 }
 
@@ -85,6 +85,7 @@ body {
 
 .select-field label {
     display: block;
+    margin-bottom: 4px;
 }
 
 .day-selector-container {
@@ -204,6 +205,10 @@ button {
     margin-bottom: 12px;
 }
 
+.weather-divider {
+    border-top: 1px solid var(--active-color);
+}
+
 h2 {
     margin: 12px 0;
 }
@@ -242,6 +247,10 @@ input[type="checkbox"] {
 
 .weather-report {
     text-align: center;
+}
+
+.progress-marker-option {
+    margin-top: 4px;
 }
 
 /* md and above */

@@ -115,7 +115,7 @@ const Tracker = () => {
     const maxDayDisabled = () => {
         if (state.campaign === CAMPAIGNS[0])
             return (state.day >= 45);
-        
+
         return (state.day >= 30);
     }
 
@@ -169,7 +169,9 @@ const Tracker = () => {
 
                     {
                         (state.campaign === CAMPAIGNS[1]) &&
-                        <p>(Arcology) {generateArcologyWeather(state.day)}</p>
+                        <div className="weather-divider">
+                            <p>(Arcology) {generateArcologyWeather(state.day)}</p>
+                        </div>
                     }
                 </div>
 
@@ -290,7 +292,7 @@ const Tracker = () => {
                         placeholder={"Eg. Biscuit Delivery"}>
                     </ItemInput>
 
-                    <div>
+                    <div className="progress-marker-option">
                         <input
                             id="no-progress-indicator"
                             checked={progressChecked}
@@ -396,11 +398,13 @@ const Tracker = () => {
                     <button
                         onClick={handleExportFile}
                         className="textless-btn fake-textless-btn">
-                        Save Campaign
+                        SAVE CAMPAIGN
                     </button>
 
                     <div className="import-campaign-container">
-                        <label className="textless-btn" htmlFor="import-campaign">Import Campaign</label>
+                        <label
+                            className="textless-btn" 
+                            htmlFor="import-campaign">IMPORT CAMPAIGN</label>
                         <input
                             onChange={handleFileChange}
                             id="import-campaign"
