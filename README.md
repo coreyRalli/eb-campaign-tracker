@@ -1,6 +1,6 @@
 # Earthborne Rangers Digital Campaign Tracker
 
-A campaign tracker for [Earthborne Rangers](https://earthbornegames.com/). You can find it in action [here](https://coreyRalli.github.io/eb-campaign-tracker/).
+A campaign tracker for [Earthborne Rangers](https://earthbornegames.com/the-game/). You can see it in action [here](https://coreyRalli.github.io/eb-campaign-tracker/).
 
 Supports Lure Of The Valley (including Spire In Bloom & extended campaign days) and Legacy Of The Ancestors. Uses LocalStorage to store data, though there is the option to save a campaign file to import across different devices.
 
