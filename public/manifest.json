@@ -6,7 +6,8 @@
   "display_override": ["window-controls-overlay"],
   "theme_color": "#32c599",
   "background_color": "#121212",
-  "start_url": "/",
+  "scope": "/eb-campaign-tracker/",
+  "start_url": "/eb-campaign-tracker/",
   "icons": [
     {
       "src": "windows11/SmallTile.scale-100.png",
