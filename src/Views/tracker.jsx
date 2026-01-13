@@ -236,6 +236,7 @@ const Tracker = () => {
                                     {
                                         state.rangers.map(ranger =>
                                             <LineItem
+                                                displayEdit={showRangerEdit}
                                                 text={ranger.name}
                                                 key={ranger.id}
                                                 onDelete={() => dispatch(REMOVE_RANGER(ranger.id))} />)
