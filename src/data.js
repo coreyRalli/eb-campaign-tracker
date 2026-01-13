@@ -69,6 +69,38 @@ export const CAMPAIGNS = [
   "Legacy Of The Ancestors"
 ]
 
+export const BACKGROUNDS = [
+  "Artisan",
+  "Forager",
+  "Shepherd",
+  "Traveler",
+  "Talespinner"
+]
+
+export const SPECIALITIES = [
+  "Artificer",
+  "Conciliator",
+  "Explorer",
+  "Shaper",
+  "Spirit Speaker"
+]
+
+export const PERSONALITIES_AWA = [
+  
+]
+
+export const PERSONALITIES_SPI = [
+  
+]
+
+export const PERSONALITIES_FIT = [
+  
+]
+
+export const PERSONALITIES_FOC = [
+  
+]
+
 export const generateDefaultNotes = (campaign = "Lure Of The Valley") => {
   const dayNotes = [];
 

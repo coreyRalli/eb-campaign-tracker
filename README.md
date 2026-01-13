@@ -8,8 +8,9 @@ I am in no way connected with Earthborne Games, I just think the game is neat.
 
 ## TODO
 
-- Manually selectable weather
+- Move campaign data from LocalStorage to IndexedDB
 - Multiple Campaign Support
+- Manually selectable weather
 - Cleanup styling and selectors
 - Add Light Mode UI
 - Combobox for rewards
