@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect } from "react";
+import { useReducer, useState, useEffect, useRef } from "react";
 import { CAMPAIGNS, generateArcologyWeather, generateDefaultNotes, generateWeather, LOCATIONS, LOCATIONS_LOTA, PATHS, PATHS_LOTA } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
 import { INCREMENT_DAY, DECREMENT_DAY, CHANGE_LOCATION, CHANGE_TERRIAN, REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE, UPDATE_CAMPAIGN } from '../reducer/actions';
@@ -23,6 +23,8 @@ const Tracker = () => {
     const [showRangerEdit, setShowRangerEdit] = useState(false);
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
     const [tempCampaign, setTempCampaign] = useState(CAMPAIGNS[0]);
+
+    const importBtnRef = useRef(null);
 
     useEffect(() => {
         const campaignState = localStorage.getItem("campaign-state");
@@ -89,6 +91,10 @@ const Tracker = () => {
         }
     }
 
+    const handleImportClick = () => {
+        importBtnRef.current.click();
+    }
+
     const handleExportFile = async () => {
         const campaign = localStorage.getItem("campaign-state");
 
@@ -121,7 +127,7 @@ const Tracker = () => {
 
     return (
         <>
-            <div className="header">
+            <header className="header">
                 <h1>Campaign Tracker </h1>
 
                 {
@@ -200,10 +206,10 @@ const Tracker = () => {
                         type="text"
                         placeholder={"Campaign Guide, Ranger Report Modifiers Etc."} />
                 </div>
-            </div>
+            </header>
 
-            <div className="tracker-content">
-                <div className="section">
+            <main className="tracker-content">
+                <section className="section">
                     <div>
                         <h2>Rangers</h2>
                     </div>
@@ -241,9 +247,9 @@ const Tracker = () => {
                                 </button>
                             </>
                     }
-                </div>
+                </section>
 
-                <div className="section">
+                <section className="section">
                     <div>
                         <h2>Notable Events</h2>
                     </div>
@@ -277,9 +283,9 @@ const Tracker = () => {
                                     onDelete={() => dispatch(REMOVE_EVENT(event.id))} />)
                         }
                     </ul>
-                </div>
+                </section>
 
-                <div className="section">
+                <section className="section">
                     <div>
                         <h2>Missions</h2>
                     </div>
@@ -352,9 +358,9 @@ const Tracker = () => {
                                 </LineItem>)
                         }
                     </ul>
-                </div>
+                </section>
 
-                <div className="section">
+                <section className="section">
                     <div>
                         <div>
                             <h2>Rewards</h2>
@@ -390,9 +396,9 @@ const Tracker = () => {
                             }
                         </ul>
                     </div>
-                </div>
+                </section>
 
-                <div className="section options">
+                <section className="section options">
                     <h2>Options</h2>
 
                     <button
@@ -401,17 +407,24 @@ const Tracker = () => {
                         SAVE CAMPAIGN
                     </button>
 
+                    <button
+                        onClick={handleImportClick}
+                        className="textless-btn fake-textless-btn">
+                        IMPORT CAMPAIGN
+                    </button>
+
                     <div className="import-campaign-container">
                         <label
                             className="textless-btn" 
                             htmlFor="import-campaign">IMPORT CAMPAIGN</label>
                         <input
+                            ref={importBtnRef}
                             onChange={handleFileChange}
                             id="import-campaign"
                             accept=".txt, .json"
                             type="file" />
                     </div>
-                </div>
+                </section>
 
                 <p>
                     A digital campaign tracker for Earthborne Rangers I quickly cobbled together. It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).
@@ -420,7 +433,7 @@ const Tracker = () => {
 
                 <p>I am in no way connected with Earthborne Games, I just think the game is neat.</p>
                 <p>- <a href="https://github.com/coreyRalli">Corey Ralli</a></p>
-            </div>
+            </main>
         </>
     )
 }

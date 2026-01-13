@@ -217,6 +217,7 @@ h2 {
     margin: 0;
     padding: 0;
     font-size: 16px;
+    display: block;
 }
 
 input[type="file"] {
@@ -251,6 +252,10 @@ input[type="checkbox"] {
 
 .progress-marker-option {
     margin-top: 4px;
+}
+
+.import-campaign-container {
+    display: none;
 }
 
 /* md and above */
