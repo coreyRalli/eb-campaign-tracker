@@ -1,10 +1,11 @@
 import { useReducer, useState, useEffect, useRef } from "react";
 import { CAMPAIGNS, generateDefaultNotes} from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_RANGER, ADD_RANGER, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE, UPDATE_CAMPAIGN } from '../reducer/actions';
+import { REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE, UPDATE_CAMPAIGN } from '../reducer/actions';
 import ItemInput from "../components/iteminput";
 import LineItem from "../components/LineItem";
 import DayHeader from "../components/DayHeader";
+import Rangers from "../components/Rangers";
 
 const Tracker = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -12,15 +13,12 @@ const Tracker = () => {
     const [newEventText, setNewEventText] = useState("");
     const [newRewardText, setNewRewardText] = useState("");
     const [newMissionText, setNewMissionText] = useState("");
-    const [newRangerText, setNewRangerText] = useState("");
 
     const [eventsEditOn, setEventsEditOn] = useState(false);
     const [missionsEditOn, setMissionsEditOn] = useState(false);
     const [rewardsEditOn, setRewardsEditOn] = useState(false);
 
     const [progressChecked, setProgressChecked] = useState(true);
-
-    const [showRangerEdit, setShowRangerEdit] = useState(false);
 
     const importBtnRef = useRef(null);
 
@@ -48,12 +46,6 @@ const Tracker = () => {
         e.preventDefault();
         dispatch(ADD_EVENT(newEventText));
         setNewEventText("");
-    }
-
-    const onNewRangerSubmit = (e) => {
-        e.preventDefault();
-        dispatch(ADD_RANGER(newRangerText));
-        setNewRangerText("");
     }
 
     const onNewRewardSubmit = (e) => {
@@ -115,46 +107,7 @@ const Tracker = () => {
         <>
             <DayHeader state={state} dispatch={dispatch}/>
             <main className="tracker-content">
-                <section className="section">
-                    <div>
-                        <h2>Rangers</h2>
-                    </div>
-
-                    {
-                        !showRangerEdit ?
-                            <p>
-                                {(state.rangers.length > 0) ? state.rangers.map(r => r.name).join(", ") : "No Rangers Added"}
-                                <button
-                                    onClick={(e) => setShowRangerEdit(true)}
-                                    className="textless-btn">
-                                    EDIT
-                                </button>
-                            </p> :
-                            <>
-                                <ItemInput
-                                    id={"new-ranger"}
-                                    text={newRangerText}
-                                    placeholder={"eg. Bob"}
-                                    onSubmit={onNewRangerSubmit}
-                                    onChange={(value) => setNewRangerText(value)} />
-
-                                <ul className="list">
-                                    {
-                                        state.rangers.map(ranger =>
-                                            <LineItem
-                                                displayEdit={showRangerEdit}
-                                                text={ranger.name}
-                                                key={ranger.id}
-                                                onDelete={() => dispatch(REMOVE_RANGER(ranger.id))} />)
-                                    }
-                                </ul>
-
-                                <button className="textless-btn" onClick={(e) => setShowRangerEdit(false)}>
-                                    FINISH
-                                </button>
-                            </>
-                    }
-                </section>
+                <Rangers state={state} dispatch={dispatch}/>
 
                 <section className="section">
                     <div>
