@@ -1,39 +1,30 @@
-import { useReducer, useState, useEffect, useRef } from "react";
+import { useReducer, useEffect, useRef } from "react";
 import { CAMPAIGNS, generateDefaultNotes} from "../data";
 import reducer, { initialState } from "../reducer/reducer";
-import { REMOVE_EVENT, ADD_EVENT, ADD_REWARDS, REMOVE_REWARDS, ADD_MISSION, REMOVE_MISSION, DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, HYDRATE, UPDATE_EVENT, UPDATE_MISSION, UPDATE_REWARDS, UPDATE_NOTE, UPDATE_CAMPAIGN } from '../reducer/actions';
-import ItemInput from "../components/iteminput";
-import LineItem from "../components/LineItem";
+import { HYDRATE } from '../reducer/actions';
 import DayHeader from "../components/DayHeader";
 import Rangers from "../components/Rangers";
+import Events from "../components/Events";
+import Missions from "../components/Missions";
+import Rewards from "../components/Rewards";
+import Options from "../components/Options";
 
 const Tracker = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
-
-    const [newEventText, setNewEventText] = useState("");
-    const [newRewardText, setNewRewardText] = useState("");
-    const [newMissionText, setNewMissionText] = useState("");
-
-    const [eventsEditOn, setEventsEditOn] = useState(false);
-    const [missionsEditOn, setMissionsEditOn] = useState(false);
-    const [rewardsEditOn, setRewardsEditOn] = useState(false);
-
-    const [progressChecked, setProgressChecked] = useState(true);
-
-    const importBtnRef = useRef(null);
 
     useEffect(() => {
         const campaignState = localStorage.getItem("campaign-state");
         if (campaignState) {
             const data = JSON.parse(campaignState);
 
+            // Updates
             if (!data.notes)
                 data.notes = generateDefaultNotes();
 
             if (!data.campaign)
                 data.campaign = CAMPAIGNS[0];
 
-            dispatch({ type: 'hydrate', payload: { data } });
+            dispatch(HYDRATE(data));
         }
     }, [])
 
@@ -42,249 +33,32 @@ const Tracker = () => {
             localStorage.setItem("campaign-state", JSON.stringify(state));
     }, [state]);
 
-    const onNewEventSubmit = (e) => {
-        e.preventDefault();
-        dispatch(ADD_EVENT(newEventText));
-        setNewEventText("");
-    }
-
-    const onNewRewardSubmit = (e) => {
-        e.preventDefault();
-        dispatch(ADD_REWARDS(newRewardText));
-        setNewRewardText("");
-    }
-
-    const onNewMissionSubmit = (e) => {
-        e.preventDefault();
-        dispatch(ADD_MISSION(newMissionText, progressChecked ? 0 : -1));
-        setNewMissionText("");
-    }
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.addEventListener("load", () => {
-            const text = reader.result;
-            const obj = JSON.parse(text);
-
-            dispatch(HYDRATE(obj));
-        })
-
-        if (file) {
-            reader.readAsText(file);
-        }
-    }
-
-    const handleImportClick = () => {
-        importBtnRef.current.click();
-    }
-
-    const handleExportFile = async () => {
-        const campaign = localStorage.getItem("campaign-state");
-
-        const blob = new Blob([campaign], { type: "plain/text" });
-
-        const handle = await showSaveFilePicker({
-            suggestedName: `earthborne-rangers-campaign`,
-            types: [
-                {
-                    description: "Exported Earthborne Rangers Campaign",
-                    accept: {
-                        "text/plain": [".txt"],
-                        "application/json": [".json"]
-                    }
-                }
-            ]
-        });
-
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-    }
-
     return (
         <>
-            <DayHeader state={state} dispatch={dispatch}/>
+            <DayHeader 
+                state={state} 
+                dispatch={dispatch}/>
+
             <main className="tracker-content">
-                <Rangers state={state} dispatch={dispatch}/>
+                <Rangers 
+                    state={state} 
+                    dispatch={dispatch}/>
 
-                <section className="section">
-                    <div>
-                        <h2>Notable Events</h2>
-                    </div>
+                <Events 
+                    state={state} 
+                    dispatch={dispatch}/>
 
-                    <ItemInput
-                        id={"new-notable-event"}
-                        text={newEventText}
-                        placeholder={"eg. Impressed Calypsa"}
-                        onSubmit={onNewEventSubmit}
-                        onChange={(value) => setNewEventText(value)} />
+                <Missions 
+                    state={state} 
+                    dispatch={dispatch}/>
 
-                    <div>
-                        {
-                            (state.events.length > 0) &&
-                            <button
-                                className="textless-btn item-edit-btn"
-                                onClick={() => setEventsEditOn(prev => !prev)}>
-                                {eventsEditOn ? "FINISH" : "MODIFY"}
-                            </button>
-                        }
-                    </div>
+                <Rewards 
+                    state={state} 
+                    dispatch={dispatch} />
 
-                    <ul className="list">
-                        {
-                            state.events.map(event =>
-                                <LineItem
-                                    onTextUpdate={(text) => dispatch(UPDATE_EVENT(event.id, text))}
-                                    displayEdit={eventsEditOn}
-                                    text={event.name}
-                                    key={event.id}
-                                    onDelete={() => dispatch(REMOVE_EVENT(event.id))} />)
-                        }
-                    </ul>
-                </section>
-
-                <section className="section">
-                    <div>
-                        <h2>Missions</h2>
-                    </div>
-
-                    <ItemInput
-                        id={"new-mission-form"}
-                        text={newMissionText}
-                        onSubmit={onNewMissionSubmit}
-                        onChange={(value) => setNewMissionText(value)}
-                        placeholder={"Eg. Biscuit Delivery"}>
-                    </ItemInput>
-
-                    <div className="progress-marker-option">
-                        <input
-                            id="no-progress-indicator"
-                            checked={progressChecked}
-                            onChange={({ target }) => setProgressChecked(target.checked)}
-                            type="checkbox" />
-                        <label htmlFor="no-progress-indicator">Include Progress Markers</label>
-                    </div>
-
-                    <div className="edit-list-btn-container">
-                        {
-                            (state.missions.length > 0) &&
-                            <button
-                                className="textless-btn item-edit-btn"
-                                onClick={() => setMissionsEditOn(prev => !prev)}>
-                                {missionsEditOn ? "FINISH" : "MODIFY"}
-                            </button>
-                        }
-                    </div>
-
-                    <ul className="list">
-                        {
-                            state.missions.map(mission =>
-                                <LineItem
-                                    onTextUpdate={(text) => dispatch(UPDATE_MISSION(mission.id, text))}
-                                    text={mission.name}
-                                    key={mission.id}
-                                    displayEdit={missionsEditOn}
-                                    onDelete={() => dispatch(REMOVE_MISSION(mission.id))}>
-                                    {/* Mission markers */}
-                                    <>
-                                        <p className="mission-day">Day {mission.day}</p>
-                                        {
-                                            (mission.progress !== -1) &&
-                                            <div className="mission-progress-container">
-                                                <button
-                                                    disabled={(mission.progress <= 0)}
-                                                    onClick={(e) => dispatch(DECREMENT_MISSION_PROGRESS(mission.id))}>
-                                                    <span className="material-symbols-outlined">
-                                                        remove
-                                                    </span>
-                                                </button>
-
-                                                <div className={`mission-progress ${mission.progress === 1 ? "active" : ""}`}></div>
-                                                <div className={`mission-progress ${mission.progress === 2 ? "active" : ""}`}></div>
-                                                <div className={`mission-progress ${mission.progress === 3 ? "active" : ""}`}></div>
-
-                                                <button
-                                                    disabled={(mission.progress >= 3)}
-                                                    onClick={(e) => dispatch(INCREMENT_MISSION_PROGRESS(mission.id))}>
-                                                    <span className="material-symbols-outlined">
-                                                        add
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        }
-                                    </>
-                                </LineItem>)
-                        }
-                    </ul>
-                </section>
-
-                <section className="section">
-                    <div>
-                        <div>
-                            <h2>Rewards</h2>
-                        </div>
-
-                        <ItemInput
-                            id={"new-reward-form"}
-                            text={newRewardText}
-                            onChange={(value) => setNewRewardText(value)}
-                            placeholder={"eg. Carbon Rod"}
-                            onSubmit={onNewRewardSubmit} />
-
-                        <div>
-                            {
-                                (state.rewards.length > 0) &&
-                                <button
-                                    className="textless-btn item-edit-btn"
-                                    onClick={(e) => setRewardsEditOn(prev => !prev)}>
-                                    {rewardsEditOn ? "FINISH" : "MODIFY"}
-                                </button>
-                            }
-                        </div>
-
-                        <ul className="list">
-                            {
-                                state.rewards.map(reward =>
-                                    <LineItem
-                                        onTextUpdate={(text) => dispatch(UPDATE_REWARDS(reward.id, text))}
-                                        displayEdit={rewardsEditOn}
-                                        text={reward.name}
-                                        key={reward.id}
-                                        onDelete={() => dispatch(REMOVE_REWARDS(reward.id))} />)
-                            }
-                        </ul>
-                    </div>
-                </section>
-
-                <section className="section options">
-                    <h2>Options</h2>
-
-                    <button
-                        onClick={handleExportFile}
-                        className="textless-btn fake-textless-btn">
-                        SAVE CAMPAIGN
-                    </button>
-
-                    <button
-                        onClick={handleImportClick}
-                        className="textless-btn fake-textless-btn">
-                        IMPORT CAMPAIGN
-                    </button>
-
-                    <div className="import-campaign-container">
-                        <label
-                            className="textless-btn"
-                            htmlFor="import-campaign">IMPORT CAMPAIGN</label>
-                        <input
-                            ref={importBtnRef}
-                            onChange={handleFileChange}
-                            id="import-campaign"
-                            accept=".txt, .json"
-                            type="file" />
-                    </div>
-                </section>
+                <Options 
+                    state={state}
+                    dispatch={dispatch}/>
 
                 <p>
                     A digital campaign tracker for Earthborne Rangers I quickly cobbled together. It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).
