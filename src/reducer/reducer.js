@@ -17,6 +17,14 @@ const reducer = (state, action) => {
         case "add_ranger":
             const newRanger = { id: crypto.randomUUID(), name: action.payload.name };
             return { ...state, rangers: [...state.rangers, newRanger] };
+        case "update_ranger":
+            const updateRangerList = structuredClone(state.rangers);
+            const rangerToUpdateIndex = updateRangerList.findIndex(m => m.id === action.payload.id);
+
+            if (rangerToUpdateIndex !== -1)
+                updateRangerList[rangerToUpdateIndex].name = action.payload.name;
+
+            return {...state, rangers: updateRangerList}
         case "remove_ranger":
             const filteredRangerList = structuredClone(state.rangers).filter(r => r.id !== action.payload.id);
             return { ...state, rangers: filteredRangerList };

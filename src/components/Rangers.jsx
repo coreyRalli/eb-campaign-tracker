@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ADD_RANGER, REMOVE_RANGER } from "../reducer/actions";
+import { ADD_RANGER, REMOVE_RANGER, UPDATE_RANGER } from "../reducer/actions";
 import LineItem from "./LineItem";
 import ItemInput from "./iteminput";
 
@@ -41,6 +41,7 @@ const Rangers = ({ state, dispatch }) => {
                             {
                                 state.rangers.map(ranger =>
                                     <LineItem
+                                        onTextUpdate={(value) => dispatch(UPDATE_RANGER(ranger.id, value))}
                                         displayEdit={showRangerEdit}
                                         text={ranger.name}
                                         key={ranger.id}

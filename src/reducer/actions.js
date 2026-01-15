@@ -1,4 +1,5 @@
 export const ADD_RANGER = (name) => ({ type: "add_ranger", payload: { name } });
+export const UPDATE_RANGER = (id, name) => ({ type: "update_ranger", payload: { id, name } });
 export const REMOVE_RANGER = (id) => ({ type: "remove_ranger", payload: { id } });
 export const ADD_EVENT = (name) => ({ type: "add_event", payload: { name } });
 export const UPDATE_EVENT = (id, newName) => ({ type: "update_event", payload: { id, newName} });
