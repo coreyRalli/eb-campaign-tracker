@@ -165,6 +165,7 @@ button {
     border: none;
     color: var(--active-color);
     cursor: pointer;
+    font-size: 16px;
 }
 
 .new-item-form {
@@ -256,6 +257,20 @@ input[type="checkbox"] {
 
 .import-campaign-container {
     display: none;
+}
+
+.campaign-note-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.campaign-note-container button {
+    margin-top: 12px;
+}
+
+.campaign-note-container p {
+    text-align: center;
 }
 
 /* md and above */

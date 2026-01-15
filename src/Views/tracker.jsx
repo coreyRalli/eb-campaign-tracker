@@ -13,6 +13,7 @@ const Tracker = () => {
     const [newRewardText, setNewRewardText] = useState("");
     const [newMissionText, setNewMissionText] = useState("");
     const [newRangerText, setNewRangerText] = useState("");
+    const [noteUpdateText, setNoteUpdateText] = useState("");
 
     const [eventsEditOn, setEventsEditOn] = useState(false);
     const [missionsEditOn, setMissionsEditOn] = useState(false);
@@ -22,6 +23,7 @@ const Tracker = () => {
 
     const [showRangerEdit, setShowRangerEdit] = useState(false);
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
+    const [showCampaignNoteEdit, setShowCampaignNoteEdit] = useState(false);
     const [tempCampaign, setTempCampaign] = useState(CAMPAIGNS[0]);
 
     const importBtnRef = useRef(null);
@@ -62,6 +64,12 @@ const Tracker = () => {
         e.preventDefault();
         dispatch(ADD_REWARDS(newRewardText));
         setNewRewardText("");
+    }
+
+    const onNoteUpdateSubmit = (e) => {
+        e.preventDefault();
+        dispatch(UPDATE_NOTE(noteUpdateText));
+        setShowCampaignNoteEdit(false);
     }
 
     const onNewMissionSubmit = (e) => {
@@ -125,6 +133,21 @@ const Tracker = () => {
         return (state.day >= 30);
     }
 
+    const onClickUpdateCampaignNote = () => {
+        setNoteUpdateText(state.notes[state.day - 1].note);
+        setShowCampaignNoteEdit(true);
+    }
+
+    const onIncrementDayClick = () => {
+        setShowCampaignNoteEdit(false);
+        dispatch(INCREMENT_DAY());
+    }
+
+    const onDecrementDayClick = () => {
+        setShowCampaignNoteEdit(false);
+        dispatch(DECREMENT_DAY());
+    }
+
     return (
         <>
             <header className="header">
@@ -159,13 +182,13 @@ const Tracker = () => {
                 <p>DAY</p>
                 <div className="day-selector-container">
                     <button
-                        onClick={() => dispatch(DECREMENT_DAY())}
+                        onClick={onDecrementDayClick}
                         disabled={state.day <= 1}>
                         <span className="material-symbols-outlined">arrow_left</span>
                     </button>
                     <p>{state.day}</p>
                     <button
-                        onClick={() => dispatch(INCREMENT_DAY())}
+                        onClick={onIncrementDayClick}
                         disabled={maxDayDisabled()}>
                         <span className="material-symbols-outlined">arrow_right</span>
                     </button>
@@ -198,13 +221,40 @@ const Tracker = () => {
                     initOptionText={"Select a terrain"} />
 
                 <div className="daily-notes-container">
-                    <label htmlFor="daily-note">Daily Note</label>
-                    <input
-                        value={state.notes[state.day - 1].note}
-                        onChange={({ target }) => dispatch(UPDATE_NOTE(target.value))}
-                        id="daily-note"
-                        type="text"
-                        placeholder={"Campaign Guide, Ranger Report Modifiers Etc."} />
+                    {
+                        (showCampaignNoteEdit) ?
+                            <div>
+                                <form
+                                    className="campaign-note-container" 
+                                    onSubmit={onNoteUpdateSubmit}>
+                                    <input
+                                        value={noteUpdateText}
+                                        onChange={({ target }) => setNoteUpdateText(target.value)}
+                                        id="daily-note"
+                                        type="text"
+                                        placeholder={"Campaign Guide, Ranger Report Modifiers Etc."} />
+                                    <button
+                                        type="submit"
+                                        className="textless-btn">
+                                        UPDATE
+                                    </button>
+                                </form>
+                            </div> :
+                            <div className="campaign-note-container">
+                                {
+                                    (state.notes[state.day - 1].note !== "") &&
+                                    <p>
+                                        {state.notes[state.day - 1].note}
+                                    </p>
+                                }
+
+                                <button
+                                    onClick={() => onClickUpdateCampaignNote()}
+                                    className="textless-btn">
+                                    {state.notes[state.day - 1].note === "" ? "ADD NOTE" : "EDIT"}
+                                </button>
+                            </div>
+                    }
                 </div>
             </header>
 
@@ -416,7 +466,7 @@ const Tracker = () => {
 
                     <div className="import-campaign-container">
                         <label
-                            className="textless-btn" 
+                            className="textless-btn"
                             htmlFor="import-campaign">IMPORT CAMPAIGN</label>
                         <input
                             ref={importBtnRef}
