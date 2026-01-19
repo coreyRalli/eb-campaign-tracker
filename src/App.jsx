@@ -25,8 +25,10 @@ function App() {
 
   return (
     <>
-      {campaignId !== -1} &&
-      <Tracker id={campaignId}/>
+      {
+        (campaignId !== -1) &&
+        <Tracker id={campaignId} />
+      }
     </>
   )
 }
