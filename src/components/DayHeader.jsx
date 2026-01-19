@@ -15,7 +15,7 @@ const DayHeader = ({ id }) => {
             note
         }
     }, [])
-    
+
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
     const [showCampaignNoteEdit, setShowCampaignNoteEdit] = useState(false);
     const [noteUpdateText, setNoteUpdateText] = useState("");
@@ -54,8 +54,18 @@ const DayHeader = ({ id }) => {
         setShowCampaignNoteEdit(false);
     }
 
+    const handleChangeCampaignClick = () => {
+        setTempCampaign(campaign.campaign);
+        setShowCampaignEdit(true);
+    }
+
     const handleSetNewCampaignClick = () => {
-        CHANGE_CAMPAIGN(tempCampaign);
+        if (tempCampaign !== campaign.campaign) {
+            // TODO: Create in-page blocking UI rather than use confirm
+            if (window.confirm("Do you want to change campaigns? All daily notes will be deleted!"))
+                CHANGE_CAMPAIGN(campaign.id, tempCampaign);
+        }
+
         setShowCampaignEdit(false);
     }
 
@@ -82,7 +92,7 @@ const DayHeader = ({ id }) => {
                     <p>
                         {campaign.campaign}
                         <button
-                            onClick={() => setShowCampaignEdit(true)}
+                            onClick={handleChangeCampaignClick}
                             className="textless-btn">
                             CHANGE
                         </button>
