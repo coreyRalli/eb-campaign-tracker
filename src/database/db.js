@@ -12,7 +12,7 @@ db.version(1).stores({
 })
 
 // Campaign options
-export const ADD_RANGER = async (campaignId, name) => { await db.rangers.add({ campaignId, name })};
+export const ADD_RANGER = async (campaignId, name) => { await db.rangers.add({ campaignId, name }) };
 export const UPDATE_RANGER = async (id, name) => { await db.rangers.update(id, { name }) };
 export const REMOVE_RANGER = async (id) => { await db.rangers.delete(id); }
 export const ADD_EVENT = async (campaignId, note) => { await db.events.add({ campaignId, note }) };
@@ -22,6 +22,15 @@ export const INCREMENT_DAY = async (id, day) => { await db.campaigns.update(id, 
 export const DECREMENT_DAY = async (id, day) => { await db.campaigns.update(id, { day: day - 1 }) };
 export const CHANGE_LOCATION = async (id, location) => { await db.campaigns.update(id, { location }) };
 export const CHANGE_TERRAIN = async (id, terrain) => { await db.campaigns.update(id, { terrain }) };
+export const ADD_REWARDS = async (campaignId, name) => { await db.rewards.add({ campaignId, name }) };
+export const UPDATE_REWARDS = async (id, name) => { await db.rewards.update(id, { name }) };
+export const REMOVE_REWARDS = async (id) => { await db.rewards.delete(id); }
+export const ADD_MISSION = async (campaignId, name, progress, day) => { await db.missions.add({ campaignId, name, progress, day, completed: false }) };
+export const UPDATE_MISSION = async (id, name) => { await db.missions.update(id, { name }) };
+export const SET_MISSION_COMPLETE = async (id, complete) => { await db.missions.update(id, { complete }) };
+export const INCREMENT_MISSION_PROGRESS = async (id, progress) => { await db.missions.update(id, { progress: progress + 1 }) }
+export const DECREMENT_MISSION_PROGRESS = async (id, progress) => { await db.missions.update(id, { progress: progress - 1 }) }
+export const REMOVE_MISSION = async (id) => { await db.missions.delete(id); }
 export const CHANGE_CAMPAIGN = async (id, campaign) => {
     // Clear out campaign guide entries from previous campaign
     // TODO: Clear out notable events and missions when changing as well (if player wants)

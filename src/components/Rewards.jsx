@@ -1,15 +1,26 @@
 import { useState } from "react";
-import { ADD_REWARDS, REMOVE_REWARDS, UPDATE_REWARDS } from "../reducer/actions";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
+import { useLiveQuery } from "dexie-react-hooks";
+import db, { ADD_REWARDS, UPDATE_REWARDS, REMOVE_REWARDS } from '../database/db';
 
-const Rewards = ({ state, dispatch }) => {
+const Rewards = ({ id }) => {
+    const rewards = useLiveQuery(async () => {
+        const r = await db.rewards.where("campaignId").equals(id).toArray();
+
+        return r;
+    }, []);
+
     const [newRewardText, setNewRewardText] = useState("");
     const [rewardsEditOn, setRewardsEditOn] = useState(false);
 
+    if (!rewards)
+        return null;
+
+
     const onNewRewardSubmit = (e) => {
         e.preventDefault();
-        dispatch(ADD_REWARDS(newRewardText));
+        ADD_REWARDS(id, newRewardText);
         setNewRewardText("");
     }
 
@@ -29,7 +40,7 @@ const Rewards = ({ state, dispatch }) => {
 
                 <div>
                     {
-                        (state.rewards.length > 0) &&
+                        (rewards.length > 0) &&
                         <button
                             className="textless-btn item-edit-btn"
                             onClick={(e) => setRewardsEditOn(prev => !prev)}>
@@ -40,13 +51,13 @@ const Rewards = ({ state, dispatch }) => {
 
                 <ul className="list">
                     {
-                        state.rewards.map(reward =>
+                        rewards.map(reward =>
                             <LineItem
-                                onTextUpdate={(text) => dispatch(UPDATE_REWARDS(reward.id, text))}
+                                onTextUpdate={(text) => UPDATE_REWARDS(reward.id, text)}
                                 displayEdit={rewardsEditOn}
                                 text={reward.name}
                                 key={reward.id}
-                                onDelete={() => dispatch(REMOVE_REWARDS(reward.id))} />)
+                                onDelete={() => REMOVE_REWARDS(reward.id)} />)
                     }
                 </ul>
             </div>

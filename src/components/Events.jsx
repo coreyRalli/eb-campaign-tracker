@@ -6,7 +6,7 @@ import db, { ADD_EVENT, UPDATE_EVENT, REMOVE_EVENT } from "../database/db";
 
 const Events = ({ id }) => {
     const events = useLiveQuery(async () => {
-        const e = db.events.where("campaignId").equals(id).toArray()
+        const e = await db.events.where("campaignId").equals(id).toArray()
 
         return e;
     }, [])

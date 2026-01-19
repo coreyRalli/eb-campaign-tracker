@@ -1,21 +1,9 @@
 import { useState } from "react";
 import { CAMPAIGNS, generateArcologyWeather, generateWeather, LOCATIONS, LOCATIONS_LOTA, PATHS, PATHS_LOTA } from "../data";
 import Select from "./Select"
-import db, { CHANGE_CAMPAIGN, CHANGE_LOCATION, CHANGE_NOTE, CHANGE_TERRAIN, DECREMENT_DAY, INCREMENT_DAY } from '../database/db';
-import { useLiveQuery } from "dexie-react-hooks";
+import { CHANGE_CAMPAIGN, CHANGE_LOCATION, CHANGE_NOTE, CHANGE_TERRAIN, DECREMENT_DAY, INCREMENT_DAY } from '../database/db';
 
-const DayHeader = ({ id }) => {
-    const campaign = useLiveQuery(async () => {
-        const campaign = await db.campaigns.where('id').equals(id).first();
-
-        const note = await db.notes.where('[campaignId+day]').equals([id, campaign.day]).first();
-
-        return {
-            ...campaign,
-            note
-        }
-    }, [])
-
+const DayHeader = ({ id, campaign }) => {
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
     const [showCampaignNoteEdit, setShowCampaignNoteEdit] = useState(false);
     const [noteUpdateText, setNoteUpdateText] = useState("");

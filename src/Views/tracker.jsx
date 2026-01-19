@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useRef } from "react";
-import { CAMPAIGNS, generateDefaultNotes} from "../data";
+import { CAMPAIGNS, generateDefaultNotes } from "../data";
 import reducer, { initialState } from "../reducer/reducer";
 import { HYDRATE } from '../reducer/actions';
 import DayHeader from "../components/DayHeader";
@@ -9,8 +9,22 @@ import Missions from "../components/Missions";
 import Rewards from "../components/Rewards";
 import Options from "../components/Options";
 
+import db from '../database/db';
+import { useLiveQuery } from "dexie-react-hooks";
+
 const Tracker = ({ id }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    const campaign = useLiveQuery(async () => {
+        const campaign = await db.campaigns.where('id').equals(id).first();
+
+        const note = await db.notes.where('[campaignId+day]').equals([id, campaign.day]).first();
+
+        return {
+            ...campaign,
+            note
+        }
+    }, [])
 
     useEffect(() => {
         const campaignState = localStorage.getItem("campaign-state");
@@ -36,9 +50,14 @@ const Tracker = ({ id }) => {
             localStorage.setItem("campaign-state", JSON.stringify(state));
     }, [state]);
 
+    if (!campaign)
+        return null;
+
     return (
         <>
-            <DayHeader id={id} />
+            <DayHeader 
+                campaign={campaign} 
+                id={id} />
 
             <main className="tracker-content">
                 <Rangers id={id} />
@@ -46,19 +65,16 @@ const Tracker = ({ id }) => {
                 <Events id={id} />
 
                 <Missions
-                    id={id} 
-                    state={state} 
-                    dispatch={dispatch}/>
-
-                <Rewards
-                    id={id} 
-                    state={state} 
+                    campaign={campaign}
+                    state={state}
                     dispatch={dispatch} />
 
+                <Rewards id={id} />
+
                 <Options
-                    id={id} 
+                    id={id}
                     state={state}
-                    dispatch={dispatch}/>
+                    dispatch={dispatch} />
 
                 <p>
                     A digital campaign tracker for Earthborne Rangers I quickly cobbled together. It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).

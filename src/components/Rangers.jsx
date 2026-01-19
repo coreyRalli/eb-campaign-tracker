@@ -6,7 +6,7 @@ import db, { ADD_RANGER, REMOVE_RANGER, UPDATE_RANGER } from '../database/db';
 
 const Rangers = ({ id }) => {
     const rangers = useLiveQuery(async () => {
-        const e = db.rangers.where("campaignId").equals(id).toArray();
+        const e = await db.rangers.where("campaignId").equals(id).toArray();
 
         return e;
     }, [])
