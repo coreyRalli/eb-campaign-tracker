@@ -12,6 +12,9 @@ db.version(1).stores({
 })
 
 // Campaign options
+export const ADD_RANGER = async (campaignId, name) => { await db.rangers.add({ campaignId, name })};
+export const UPDATE_RANGER = async (id, name) => { await db.rangers.update(id, { name }) };
+export const REMOVE_RANGER = async (id) => { await db.rangers.delete(id); }
 export const ADD_EVENT = async (campaignId, note) => { await db.events.add({ campaignId, note }) };
 export const UPDATE_EVENT = async (id, note) => { await db.events.update(id, { note }) };
 export const REMOVE_EVENT = async (id) => { await db.events.delete(id) }

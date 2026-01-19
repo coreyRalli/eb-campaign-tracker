@@ -1,15 +1,25 @@
 import { useState } from "react";
-import { ADD_RANGER, REMOVE_RANGER, UPDATE_RANGER } from "../reducer/actions";
 import LineItem from "./LineItem";
 import ItemInput from "./iteminput";
+import { useLiveQuery } from "dexie-react-hooks";
+import db, { ADD_RANGER, REMOVE_RANGER, UPDATE_RANGER } from '../database/db';
 
-const Rangers = ({ state, dispatch }) => {
+const Rangers = ({ id }) => {
+    const rangers = useLiveQuery(async () => {
+        const e = db.rangers.where("campaignId").equals(id).toArray();
+
+        return e;
+    }, [])
+
     const [showRangerEdit, setShowRangerEdit] = useState(false);
     const [newRangerText, setNewRangerText] = useState("");
 
+    if (!rangers)
+        return null;
+
     const onNewRangerSubmit = (e) => {
         e.preventDefault();
-        dispatch(ADD_RANGER(newRangerText));
+        ADD_RANGER(id, newRangerText);
         setNewRangerText("");
     }
 
@@ -22,7 +32,7 @@ const Rangers = ({ state, dispatch }) => {
             {
                 !showRangerEdit ?
                     <p>
-                        {(state.rangers.length > 0) ? state.rangers.map(r => r.name).join(", ") : "No Rangers Added"}
+                        {(rangers.length > 0) ? rangers.map(r => r.name).join(", ") : "No Rangers Added"}
                         <button
                             onClick={(e) => setShowRangerEdit(true)}
                             className="textless-btn">
@@ -39,13 +49,13 @@ const Rangers = ({ state, dispatch }) => {
 
                         <ul className="list">
                             {
-                                state.rangers.map(ranger =>
+                                rangers.map(ranger =>
                                     <LineItem
-                                        onTextUpdate={(value) => dispatch(UPDATE_RANGER(ranger.id, value))}
+                                        onTextUpdate={(value) => UPDATE_RANGER(ranger.id, value)}
                                         displayEdit={showRangerEdit}
                                         text={ranger.name}
                                         key={ranger.id}
-                                        onDelete={() => dispatch(REMOVE_RANGER(ranger.id))} />)
+                                        onDelete={() => REMOVE_RANGER(ranger.id)} />)
                             }
                         </ul>
 

@@ -4,7 +4,7 @@ import LineItem from "./LineItem";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { ADD_EVENT, UPDATE_EVENT, REMOVE_EVENT } from "../database/db";
 
-const Events = ({ id, state, dispatch }) => {
+const Events = ({ id }) => {
     const events = useLiveQuery(async () => {
         const e = db.events.where("campaignId").equals(id).toArray()
 

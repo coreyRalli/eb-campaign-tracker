@@ -38,19 +38,12 @@ const Tracker = ({ id }) => {
 
     return (
         <>
-            <DayHeader
-                id={id} />
+            <DayHeader id={id} />
 
             <main className="tracker-content">
-                <Rangers
-                    id={id} 
-                    state={state} 
-                    dispatch={dispatch}/>
+                <Rangers id={id} />
 
-                <Events
-                    id={id} 
-                    state={state} 
-                    dispatch={dispatch}/>
+                <Events id={id} />
 
                 <Missions
                     id={id} 
