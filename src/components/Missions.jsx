@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_MISSION, UPDATE_MISSION, ADD_MISSION } from "../reducer/actions"
+import { DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_MISSION, UPDATE_MISSION, ADD_MISSION, SET_MISSION_COMPLETE } from "../reducer/actions"
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
 
@@ -56,6 +56,10 @@ const Missions = ({ state, dispatch }) => {
                             text={mission.name}
                             key={mission.id}
                             displayEdit={missionsEditOn}
+                            canMarkComplete
+                            complete={mission.complete}
+                            onCheckChange={(checked) => dispatch(SET_MISSION_COMPLETE(mission.id, checked))}
+                            checkId={`mission-${mission.id}-complete`}
                             onDelete={() => dispatch(REMOVE_MISSION(mission.id))}>
                             {/* Mission markers */}
                             <>

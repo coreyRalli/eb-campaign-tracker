@@ -4,6 +4,7 @@ export const REMOVE_RANGER = (id) => ({ type: "remove_ranger", payload: { id } }
 export const ADD_EVENT = (name) => ({ type: "add_event", payload: { name } });
 export const UPDATE_EVENT = (id, newName) => ({ type: "update_event", payload: { id, newName} });
 export const REMOVE_EVENT = (id) => ({ type: "remove_event", payload: { id } });
+export const SET_MISSION_COMPLETE = (id, complete) => ({ type: "complete_mission", payload: { id, complete } });
 export const ADD_MISSION = (name, progress) => ({ type: "add_mission", payload: { name, progress } });
 export const UPDATE_MISSION = (id, newName) => ({ type: "update_mission", payload: { id, newName } });
 export const REMOVE_MISSION = (id) => ({ type: "remove_mission", payload: { id } });

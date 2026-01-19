@@ -51,7 +51,7 @@ const reducer = (state, action) => {
 
             return { ...state, missions: updateMissionList };
         case "add_mission":
-            const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress };
+            const newMission = { id: crypto.randomUUID(), name: action.payload.name, day: state.day, progress: action.payload.progress, complete: false };
             return { ...state, missions: [...state.missions, newMission] };
         case "remove_mission":
             const filteredMissionList = structuredClone(state.missions).filter(m => m.id !== action.payload.id);
@@ -73,6 +73,13 @@ const reducer = (state, action) => {
             }
 
             return { ...state, missions: decMissionArr };
+        case "complete_mission":
+            const completeMissionArr = structuredClone(state.missions);
+            const completeMissionIndex = completeMissionArr.findIndex(m => m.id === action.payload.id);
+
+            if (completeMissionIndex !== -1)
+                completeMissionArr[completeMissionIndex].complete = action.payload.complete;
+            return { ...state, missions: completeMissionArr }
         case "add_rewards":
             const newReward = { id: crypto.randomUUID(), name: action.payload.name };
             return { ...state, rewards: [...state.rewards, newReward] };

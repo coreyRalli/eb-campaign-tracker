@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
+const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate, canMarkComplete = false, complete = false, checkId, onCheckChange }) => {
     const [isEditingText, setIsEditingText] = useState(false);
     const [textInput, setTextInput] = useState(text);
 
@@ -8,8 +8,26 @@ const LineItem = ({ text, onDelete, displayEdit, children, onTextUpdate }) => {
         <li>
             <div className="line-item">
                 {
-                    (!isEditingText) &&
+                    (canMarkComplete && !displayEdit) &&
+                    <input
+                        checked={complete}
+                        onChange={({ target }) => onCheckChange(target.checked)}
+                        id={checkId}
+                        type='checkbox'/>
+                }
+                                
+                {
+                    (!isEditingText && !canMarkComplete) &&
                     <span>{text}</span>
+                }
+
+                {
+                    (!isEditingText && canMarkComplete) &&
+                    <label 
+                        htmlFor={checkId}
+                        className={`${(complete) ? "complete" : "not-complete"}`}>
+                            {text}
+                    </label>
                 }
 
                 {

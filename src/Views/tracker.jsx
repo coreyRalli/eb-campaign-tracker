@@ -17,12 +17,15 @@ const Tracker = () => {
         if (campaignState) {
             const data = JSON.parse(campaignState);
 
-            // Updates
+            // Updates while developing, remove at some point
             if (!data.notes)
                 data.notes = generateDefaultNotes();
 
             if (!data.campaign)
                 data.campaign = CAMPAIGNS[0];
+
+            if (data.missions.length > 0 && (typeof data.missions[0].complete === "undefined"))
+                data.missions = data.missions.map((m) => ({ ...m, complete: false }));
 
             dispatch(HYDRATE(data));
         }
