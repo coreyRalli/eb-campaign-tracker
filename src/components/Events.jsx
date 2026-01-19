@@ -1,15 +1,25 @@
 import { useState } from "react";
-import { ADD_EVENT, REMOVE_EVENT, UPDATE_EVENT } from "../reducer/actions";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
+import { useLiveQuery } from "dexie-react-hooks";
+import db, { ADD_EVENT, UPDATE_EVENT, REMOVE_EVENT } from "../database/db";
 
-const Events = ({ state, dispatch }) => {
+const Events = ({ id, state, dispatch }) => {
+    const events = useLiveQuery(async () => {
+        const e = db.events.where("campaignId").equals(id).toArray()
+
+        return e;
+    }, [])
+
     const [newEventText, setNewEventText] = useState("");
     const [eventsEditOn, setEventsEditOn] = useState(false);
 
+    if (!events)
+        return null;
+
     const onNewEventSubmit = (e) => {
         e.preventDefault();
-        dispatch(ADD_EVENT(newEventText));
+        ADD_EVENT(id, newEventText);
         setNewEventText("");
     }
 
@@ -28,7 +38,7 @@ const Events = ({ state, dispatch }) => {
 
             <div>
                 {
-                    (state.events.length > 0) &&
+                    (events.length > 0) &&
                     <button
                         className="textless-btn item-edit-btn"
                         onClick={() => setEventsEditOn(prev => !prev)}>
@@ -39,13 +49,13 @@ const Events = ({ state, dispatch }) => {
 
             <ul className="list">
                 {
-                    state.events.map(event =>
+                    events.map(event =>
                         <LineItem
-                            onTextUpdate={(text) => dispatch(UPDATE_EVENT(event.id, text))}
+                            onTextUpdate={(text) => UPDATE_EVENT(event.id, text)}
                             displayEdit={eventsEditOn}
-                            text={event.name}
+                            text={event.note}
                             key={event.id}
-                            onDelete={() => dispatch(REMOVE_EVENT(event.id))} />)
+                            onDelete={() => REMOVE_EVENT(event.id)} />)
                 }
             </ul>
         </section>
