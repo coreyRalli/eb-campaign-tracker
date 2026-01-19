@@ -9,7 +9,7 @@ import Missions from "../components/Missions";
 import Rewards from "../components/Rewards";
 import Options from "../components/Options";
 
-const Tracker = () => {
+const Tracker = ({ id }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
