@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { ADD_EVENT, UPDATE_EVENT, REMOVE_EVENT } from "../database/db";
+import { AppContext } from "../App";
 
-const Events = ({ id }) => {
+const Events = () => {
+    const { campaignId } = useContext(AppContext);
+    
     const events = useLiveQuery(async () => {
-        const e = await db.events.where("campaignId").equals(id).toArray()
+        const e = await db.events.where("campaignId").equals(campaignId).toArray();
 
         return e;
-    }, [])
+    }, [campaignId])
 
     const [newEventText, setNewEventText] = useState("");
     const [eventsEditOn, setEventsEditOn] = useState(false);
@@ -19,7 +22,7 @@ const Events = ({ id }) => {
 
     const onNewEventSubmit = (e) => {
         e.preventDefault();
-        ADD_EVENT(id, newEventText);
+        ADD_EVENT(campaignId, newEventText);
         setNewEventText("");
     }
 

@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { INCREMENT_MISSION_PROGRESS, DECREMENT_MISSION_PROGRESS, SET_MISSION_COMPLETE, ADD_MISSION, UPDATE_MISSION, REMOVE_MISSION } from '../database/db';
+import { AppContext } from "../App";
 
 const Missions = ({ campaign, state, dispatch }) => {
+    const { campaignId } = useContext(AppContext);
+    
     const missions = useLiveQuery(async () => {
         const e = await db.missions.where("campaignId").equals(campaign.id).toArray();
 
         return e;
-    }, [])
+    }, [campaignId])
 
     const [newMissionText, setNewMissionText] = useState("");
     const [missionsEditOn, setMissionsEditOn] = useState(false);

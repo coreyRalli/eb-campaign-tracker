@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Tracker from "./Views/tracker";
-import db, { createOrFetchInitalData, importFromLocalStorage } from "./database/db";
-import { CAMPAIGNS, defaultCampaign, generateDefaultNotes } from "./data";
+import { createOrFetchInitalData, importFromLocalStorage } from "./database/db";
+
+export const AppContext = React.createContext({ campaignId: -1 });
 
 function App() {
   const [campaignId, setCampaignId] = useState(-1);
@@ -26,12 +27,12 @@ function App() {
   }, [])
 
   return (
-    <>
+    <AppContext.Provider value={{campaignId, setCampaignId}}>
       {
         (campaignId !== -1) &&
-        <Tracker id={campaignId} />
+        <Tracker />
       }
-    </>
+    </AppContext.Provider>
   )
 }
 

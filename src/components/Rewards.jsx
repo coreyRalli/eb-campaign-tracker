@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { ADD_REWARDS, UPDATE_REWARDS, REMOVE_REWARDS } from '../database/db';
+import { AppContext } from "../App";
 
-const Rewards = ({ id }) => {
+const Rewards = () => {
+    const { campaignId } = useContext(AppContext);
+    
     const rewards = useLiveQuery(async () => {
-        const r = await db.rewards.where("campaignId").equals(id).toArray();
+        const r = await db.rewards.where("campaignId").equals(campaignId).toArray();
 
         return r;
-    }, []);
+    }, [campaignId]);
 
     const [newRewardText, setNewRewardText] = useState("");
     const [rewardsEditOn, setRewardsEditOn] = useState(false);
@@ -20,7 +23,7 @@ const Rewards = ({ id }) => {
 
     const onNewRewardSubmit = (e) => {
         e.preventDefault();
-        ADD_REWARDS(id, newRewardText);
+        ADD_REWARDS(campaignId, newRewardText);
         setNewRewardText("");
     }
 

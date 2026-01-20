@@ -1,19 +1,21 @@
-import { useRef } from "react";
-import { HYDRATE } from "../reducer/actions";
-import { generateExportFileForCampaign } from "../database/db";
+import { useContext, useRef } from "react";
+import { generateExportFileForCampaign, importFromFile } from "../database/db";
+import { AppContext } from "../App";
 
-const Options = ({ campaign, dispatch }) => {
+const Options = ({ campaign }) => {
+    const { setCampaignId } = useContext(AppContext);
+    
     const importBtnRef = useRef(null);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         const reader = new FileReader();
 
-        reader.addEventListener("load", () => {
+        reader.addEventListener("load", async () => {
             const text = reader.result;
-            const obj = JSON.parse(text);
+            const id = await importFromFile(text);
 
-            dispatch(HYDRATE(obj));
+            setCampaignId(id);
         })
 
         if (file) {

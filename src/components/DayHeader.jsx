@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { CAMPAIGNS, generateArcologyWeather, generateWeather, LOCATIONS, LOCATIONS_LOTA, PATHS, PATHS_LOTA } from "../data";
 import Select from "./Select"
-import { CHANGE_CAMPAIGN, CHANGE_LOCATION, CHANGE_NOTE, CHANGE_TERRAIN, DECREMENT_DAY, INCREMENT_DAY } from '../database/db';
+import db, { CHANGE_CAMPAIGN, CHANGE_LOCATION, CHANGE_NOTE, CHANGE_TERRAIN, DECREMENT_DAY, INCREMENT_DAY } from '../database/db';
+import { AppContext } from "../App";
+import { useLiveQuery } from "dexie-react-hooks";
 
-const DayHeader = ({ id, campaign }) => {
+const DayHeader = () => {
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
     const [showCampaignNoteEdit, setShowCampaignNoteEdit] = useState(false);
     const [noteUpdateText, setNoteUpdateText] = useState("");
     const [tempCampaign, setTempCampaign] = useState(CAMPAIGNS[0]);
+
+    const { campaignId } = useContext(AppContext);
+
+    const campaign = useLiveQuery(async () => {
+        const campaign = await db.campaigns.where('id').equals(campaignId).first();
+
+        const note = await db.notes.where('[campaignId+day]').equals([campaignId, campaign.day]).first();
+
+        return {
+            ...campaign,
+            note
+        }
+    }, [campaignId])
 
     if (!campaign)
         return null;
@@ -116,7 +131,7 @@ const DayHeader = ({ id, campaign }) => {
                 options={(campaign.campaign === CAMPAIGNS[1]) ? LOCATIONS_LOTA : LOCATIONS}
                 value={campaign.location}
                 id={"location-select"}
-                onChange={(value) => CHANGE_LOCATION(id, value)}
+                onChange={(value) => CHANGE_LOCATION(campaign.id, value)}
                 label={"Location"}
                 initOptionText={"Select a location"} />
 
@@ -124,7 +139,7 @@ const DayHeader = ({ id, campaign }) => {
                 options={(campaign.campaign === CAMPAIGNS[1]) ? PATHS_LOTA : PATHS}
                 value={campaign.terrain}
                 id={"terrain-select"}
-                onChange={(value) => CHANGE_TERRAIN(id, value)}
+                onChange={(value) => CHANGE_TERRAIN(campaign.id, value)}
                 label={"Path Terrain"}
                 initOptionText={"Select a terrain"} />
 

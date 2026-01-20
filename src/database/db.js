@@ -1,5 +1,5 @@
 import { Dexie } from "dexie"
-import { CAMPAIGNS, generateDefaultNotes } from "../data";
+import { CAMPAIGNS, defaultCampaign, generateDefaultNotes } from "../data";
 
 const db = new Dexie("tracker");
 db.version(1).stores({
@@ -60,7 +60,7 @@ export const createOrFetchInitalData = async () => {
     return newCampaign;
 }
 
-export const importFromLocalStorage = async (state) => {
+export const importFromLocalStorage = async (state, olderSchema = true) => {
     const stateObj = JSON.parse(state);
 
     const campaign = {
@@ -74,7 +74,7 @@ export const importFromLocalStorage = async (state) => {
 
     const rangers = stateObj.rangers.map(({ name }) => ({ name, campaignId }));
     const missions = stateObj.missions.map(({ name, day, progress, complete }) => ({ name, day, progress, complete, campaignId }));
-    const events = stateObj.events.map(({ name }) => ({ note: name, campaignId }));
+    const events =  (olderSchema) ? stateObj.events.map(({ name }) => ({ note: name, campaignId })) : stateObj.events.map(({ note }) => ({ note, campaignId }));
     const rewards = stateObj.rewards.map(({ name }) => ({ name, campaignId }));
     const notes = stateObj.notes.map(({ day, note }) => ({ day, note, campaignId }));
 
@@ -114,6 +114,16 @@ export const generateExportFileForCampaign = async (campaign) => {
         rewards,
         notes
     });
+}
+
+export const importFromFile = async (campaignStr) => {
+    const obj = JSON.parse(campaignStr);
+
+    // Check to see if it's the using new or old version
+    const oldVersion = (typeof obj.day !== "undefined");
+
+    const cId = await importFromLocalStorage(campaignStr, oldVersion);
+    return cId;
 }
 
 export default db;

@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import LineItem from "./LineItem";
 import ItemInput from "./iteminput";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { ADD_RANGER, REMOVE_RANGER, UPDATE_RANGER } from '../database/db';
+import { AppContext } from "../App";
 
-const Rangers = ({ id }) => {
+const Rangers = () => {
+    const { campaignId } = useContext(AppContext);
+    
     const rangers = useLiveQuery(async () => {
-        const e = await db.rangers.where("campaignId").equals(id).toArray();
+        const e = await db.rangers.where("campaignId").equals(campaignId).toArray();
 
         return e;
-    }, [])
+    }, [campaignId])
 
     const [showRangerEdit, setShowRangerEdit] = useState(false);
     const [newRangerText, setNewRangerText] = useState("");
@@ -19,7 +22,7 @@ const Rangers = ({ id }) => {
 
     const onNewRangerSubmit = (e) => {
         e.preventDefault();
-        ADD_RANGER(id, newRangerText);
+        ADD_RANGER(campaignId, newRangerText);
         setNewRangerText("");
     }
 
