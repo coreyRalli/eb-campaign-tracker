@@ -1,7 +1,4 @@
-import { useReducer, useEffect, useRef } from "react";
-import { CAMPAIGNS, generateDefaultNotes} from "../data";
-import reducer, { initialState } from "../reducer/reducer";
-import { HYDRATE } from '../reducer/actions';
+import { useContext } from "react";
 import DayHeader from "../components/DayHeader";
 import Rangers from "../components/Rangers";
 import Events from "../components/Events";
@@ -9,59 +6,41 @@ import Missions from "../components/Missions";
 import Rewards from "../components/Rewards";
 import Options from "../components/Options";
 
+import db from '../database/db';
+import { useLiveQuery } from "dexie-react-hooks";
+import { AppContext } from "../App";
+
 const Tracker = () => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const { campaignId } = useContext(AppContext);
 
-    useEffect(() => {
-        const campaignState = localStorage.getItem("campaign-state");
-        if (campaignState) {
-            const data = JSON.parse(campaignState);
+    const campaign = useLiveQuery(async () => {
+        const campaign = await db.campaigns.where('id').equals(campaignId).first();
 
-            // Updates while developing, remove at some point
-            if (!data.notes)
-                data.notes = generateDefaultNotes();
+        const note = await db.notes.where('[campaignId+day]').equals([campaignId, campaign.day]).first();
 
-            if (!data.campaign)
-                data.campaign = CAMPAIGNS[0];
-
-            if (data.missions.length > 0 && (typeof data.missions[0].complete === "undefined"))
-                data.missions = data.missions.map((m) => ({ ...m, complete: false }));
-
-            dispatch(HYDRATE(data));
+        return {
+            ...campaign,
+            note
         }
-    }, [])
+    }, [campaignId])
 
-    useEffect(() => {
-        if (state !== initialState)
-            localStorage.setItem("campaign-state", JSON.stringify(state));
-    }, [state]);
+    if (!campaign)
+        return null;
 
     return (
         <>
-            <DayHeader 
-                state={state} 
-                dispatch={dispatch}/>
+            <DayHeader />
 
             <main className="tracker-content">
-                <Rangers 
-                    state={state} 
-                    dispatch={dispatch}/>
+                <Rangers />
 
-                <Events 
-                    state={state} 
-                    dispatch={dispatch}/>
+                <Events />  
 
-                <Missions 
-                    state={state} 
-                    dispatch={dispatch}/>
+                <Missions campaign={campaign} />
 
-                <Rewards 
-                    state={state} 
-                    dispatch={dispatch} />
+                <Rewards />
 
-                <Options 
-                    state={state}
-                    dispatch={dispatch}/>
+                <Options campaign={campaign} />
 
                 <p>
                     A digital campaign tracker for Earthborne Rangers I quickly cobbled together. It's recomended you save your campaign regularly just in case your browser deletes local storage or if you want to swap between multiple campaigns (I might add a campaign select page later).

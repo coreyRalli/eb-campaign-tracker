@@ -1,16 +1,29 @@
-import { useState } from "react";
-import { DECREMENT_MISSION_PROGRESS, INCREMENT_MISSION_PROGRESS, REMOVE_MISSION, UPDATE_MISSION, ADD_MISSION, SET_MISSION_COMPLETE } from "../reducer/actions"
+import { useContext, useState } from "react";
 import ItemInput from "./iteminput";
 import LineItem from "./LineItem";
+import { useLiveQuery } from "dexie-react-hooks";
+import db, { INCREMENT_MISSION_PROGRESS, DECREMENT_MISSION_PROGRESS, SET_MISSION_COMPLETE, ADD_MISSION, UPDATE_MISSION, REMOVE_MISSION } from '../database/db';
+import { AppContext } from "../App";
 
-const Missions = ({ state, dispatch }) => {
+const Missions = ({ campaign, state, dispatch }) => {
+    const { campaignId } = useContext(AppContext);
+    
+    const missions = useLiveQuery(async () => {
+        const e = await db.missions.where("campaignId").equals(campaign.id).toArray();
+
+        return e;
+    }, [campaignId])
+
     const [newMissionText, setNewMissionText] = useState("");
     const [missionsEditOn, setMissionsEditOn] = useState(false);
     const [progressChecked, setProgressChecked] = useState(true);
 
+    if (!missions)
+        return null;
+
     const onNewMissionSubmit = (e) => {
         e.preventDefault();
-        dispatch(ADD_MISSION(newMissionText, progressChecked ? 0 : -1));
+        ADD_MISSION(campaign.id, newMissionText, progressChecked ? 0 : -1, campaign.day);
         setNewMissionText("");
     }
 
@@ -39,7 +52,7 @@ const Missions = ({ state, dispatch }) => {
 
             <div className="edit-list-btn-container">
                 {
-                    (state.missions.length > 0) &&
+                    (missions.length > 0) &&
                     <button
                         className="textless-btn item-edit-btn"
                         onClick={() => setMissionsEditOn(prev => !prev)}>
@@ -50,17 +63,17 @@ const Missions = ({ state, dispatch }) => {
 
             <ul className="list">
                 {
-                    state.missions.map(mission =>
+                    missions.map(mission =>
                         <LineItem
-                            onTextUpdate={(text) => dispatch(UPDATE_MISSION(mission.id, text))}
+                            onTextUpdate={(text) => UPDATE_MISSION(mission.id, text)}
                             text={mission.name}
                             key={mission.id}
                             displayEdit={missionsEditOn}
                             canMarkComplete
                             complete={mission.complete}
-                            onCheckChange={(checked) => dispatch(SET_MISSION_COMPLETE(mission.id, checked))}
+                            onCheckChange={(checked) => SET_MISSION_COMPLETE(mission.id, checked)}
                             checkId={`mission-${mission.id}-complete`}
-                            onDelete={() => dispatch(REMOVE_MISSION(mission.id))}>
+                            onDelete={() => REMOVE_MISSION(mission.id)}>
                             {/* Mission markers */}
                             <>
                                 <p className="mission-day">Day {mission.day}</p>
@@ -69,7 +82,7 @@ const Missions = ({ state, dispatch }) => {
                                     <div className="mission-progress-container">
                                         <button
                                             disabled={(mission.progress <= 0)}
-                                            onClick={(e) => dispatch(DECREMENT_MISSION_PROGRESS(mission.id))}>
+                                            onClick={(e) => DECREMENT_MISSION_PROGRESS(mission.id, mission.progress)}>
                                             <span className="material-symbols-outlined">
                                                 remove
                                             </span>
@@ -81,7 +94,7 @@ const Missions = ({ state, dispatch }) => {
 
                                         <button
                                             disabled={(mission.progress >= 3)}
-                                            onClick={(e) => dispatch(INCREMENT_MISSION_PROGRESS(mission.id))}>
+                                            onClick={(e) => INCREMENT_MISSION_PROGRESS(mission.id, mission.progress)}>
                                             <span className="material-symbols-outlined">
                                                 add
                                             </span>

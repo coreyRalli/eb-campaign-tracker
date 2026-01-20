@@ -1,50 +1,80 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { CAMPAIGNS, generateArcologyWeather, generateWeather, LOCATIONS, LOCATIONS_LOTA, PATHS, PATHS_LOTA } from "../data";
-import { CHANGE_LOCATION, CHANGE_TERRIAN, DECREMENT_DAY, INCREMENT_DAY, UPDATE_CAMPAIGN, UPDATE_NOTE } from "../reducer/actions";
 import Select from "./Select"
+import db, { CHANGE_CAMPAIGN, CHANGE_LOCATION, CHANGE_NOTE, CHANGE_TERRAIN, DECREMENT_DAY, INCREMENT_DAY } from '../database/db';
+import { AppContext } from "../App";
+import { useLiveQuery } from "dexie-react-hooks";
 
-const DayHeader = ({ state, dispatch }) => {
+const DayHeader = () => {
     const [showCampaignEdit, setShowCampaignEdit] = useState(false);
     const [showCampaignNoteEdit, setShowCampaignNoteEdit] = useState(false);
     const [noteUpdateText, setNoteUpdateText] = useState("");
     const [tempCampaign, setTempCampaign] = useState(CAMPAIGNS[0]);
 
-    const maxDayDisabled = () => {
-        if (state.campaign === CAMPAIGNS[0])
-            return (state.day >= 45);
+    const { campaignId } = useContext(AppContext);
 
-        return (state.day >= 30);
+    const campaign = useLiveQuery(async () => {
+        const campaign = await db.campaigns.where('id').equals(campaignId).first();
+
+        const note = await db.notes.where('[campaignId+day]').equals([campaignId, campaign.day]).first();
+
+        return {
+            ...campaign,
+            note
+        }
+    }, [campaignId])
+
+    if (!campaign)
+        return null;
+
+    const maxDayDisabled = () => {
+        if (campaign.campaign === CAMPAIGNS[0])
+            return (campaign.day >= 45);
+
+        return (campaign.day >= 30);
     }
 
     const onClickUpdateCampaignNote = () => {
-        setNoteUpdateText(state.notes[state.day - 1].note);
+        setNoteUpdateText(campaign.note.note);
         setShowCampaignNoteEdit(true);
     }
 
     const onIncrementDayClick = () => {
         setShowCampaignNoteEdit(false);
-        dispatch(INCREMENT_DAY());
+        INCREMENT_DAY(campaign.id, campaign.day);
     }
 
     const onDecrementDayClick = () => {
         setShowCampaignNoteEdit(false);
-        dispatch(DECREMENT_DAY());
+        DECREMENT_DAY(campaign.id, campaign.day);
     }
 
     const onNoteUpdateSubmit = (e) => {
         e.preventDefault();
-        dispatch(UPDATE_NOTE(noteUpdateText));
+        CHANGE_NOTE(campaign.note.id, noteUpdateText);
+        // TODO: Come up with a cleaner way of handling this
+
         setShowCampaignNoteEdit(false);
     }
 
+    const handleChangeCampaignClick = () => {
+        setTempCampaign(campaign.campaign);
+        setShowCampaignEdit(true);
+    }
+
     const handleSetNewCampaignClick = () => {
-        dispatch(UPDATE_CAMPAIGN(tempCampaign));
+        if (tempCampaign !== campaign.campaign) {
+            // TODO: Create in-page blocking UI rather than use confirm
+            if (window.confirm("Do you want to change campaigns? All daily notes will be deleted!"))
+                CHANGE_CAMPAIGN(campaign.id, tempCampaign);
+        }
+
         setShowCampaignEdit(false);
     }
 
     return (
         <header className="header">
-            <h1>Campaign Tracker </h1>
+            <h1>Campaign Tracker</h1>
 
             {
                 (showCampaignEdit) ?
@@ -63,9 +93,9 @@ const DayHeader = ({ state, dispatch }) => {
                         </button>
                     </> :
                     <p>
-                        {state.campaign}
+                        {campaign.campaign}
                         <button
-                            onClick={() => setShowCampaignEdit(true)}
+                            onClick={handleChangeCampaignClick}
                             className="textless-btn">
                             CHANGE
                         </button>
@@ -76,10 +106,10 @@ const DayHeader = ({ state, dispatch }) => {
             <div className="day-selector-container">
                 <button
                     onClick={onDecrementDayClick}
-                    disabled={state.day <= 1}>
+                    disabled={campaign.day <= 1}>
                     <span className="material-symbols-outlined">arrow_left</span>
                 </button>
-                <p>{state.day}</p>
+                <p>{campaign.day}</p>
                 <button
                     onClick={onIncrementDayClick}
                     disabled={maxDayDisabled()}>
@@ -87,29 +117,29 @@ const DayHeader = ({ state, dispatch }) => {
                 </button>
             </div>
             <div className="weather-report">
-                <p>{(state.campaign === CAMPAIGNS[1]) ? "(Valley)" : ""} {generateWeather(state.day, state.campaign)}</p>
+                <p>{(campaign.campaign === CAMPAIGNS[1]) ? "(Valley)" : ""} {generateWeather(campaign.day, campaign.campaign)}</p>
 
                 {
-                    (state.campaign === CAMPAIGNS[1]) &&
+                    (campaign.campaign === CAMPAIGNS[1]) &&
                     <div className="weather-divider">
-                        <p>(Arcology) {generateArcologyWeather(state.day)}</p>
+                        <p>(Arcology) {generateArcologyWeather(campaign.day)}</p>
                     </div>
                 }
             </div>
 
             <Select
-                options={(state.campaign === CAMPAIGNS[1]) ? LOCATIONS_LOTA : LOCATIONS}
-                value={state.location}
+                options={(campaign.campaign === CAMPAIGNS[1]) ? LOCATIONS_LOTA : LOCATIONS}
+                value={campaign.location}
                 id={"location-select"}
-                onChange={(value) => dispatch(CHANGE_LOCATION(value))}
+                onChange={(value) => CHANGE_LOCATION(campaign.id, value)}
                 label={"Location"}
                 initOptionText={"Select a location"} />
 
             <Select
-                options={(state.campaign === CAMPAIGNS[1]) ? PATHS_LOTA : PATHS}
-                value={state.terrain}
+                options={(campaign.campaign === CAMPAIGNS[1]) ? PATHS_LOTA : PATHS}
+                value={campaign.terrain}
                 id={"terrain-select"}
-                onChange={(value) => dispatch(CHANGE_TERRIAN(value))}
+                onChange={(value) => CHANGE_TERRAIN(campaign.id, value)}
                 label={"Path Terrain"}
                 initOptionText={"Select a terrain"} />
 
@@ -135,16 +165,16 @@ const DayHeader = ({ state, dispatch }) => {
                         </div> :
                         <div className="campaign-note-container">
                             {
-                                (state.notes[state.day - 1].note !== "") &&
+                                (campaign.note.note !== "") &&
                                 <p>
-                                    {state.notes[state.day - 1].note}
+                                    {campaign.note.note}
                                 </p>
                             }
 
                             <button
                                 onClick={() => onClickUpdateCampaignNote()}
                                 className="textless-btn">
-                                {state.notes[state.day - 1].note === "" ? "ADD NOTE" : "EDIT"}
+                                {campaign.note.note === "" ? "ADD NOTE" : "EDIT"}
                             </button>
                         </div>
                 }
