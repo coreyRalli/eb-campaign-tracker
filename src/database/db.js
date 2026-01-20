@@ -1,5 +1,5 @@
 import { Dexie } from "dexie"
-import { generateDefaultNotes } from "../data";
+import { CAMPAIGNS, generateDefaultNotes } from "../data";
 
 const db = new Dexie("tracker");
 db.version(1).stores({
@@ -45,5 +45,51 @@ export const CHANGE_CAMPAIGN = async (id, campaign) => {
     await db.notes.bulkUpdate(generatedNotes);
 };
 export const CHANGE_NOTE = async (id, note) => { await db.notes.update(id, { note }) };
+
+export const createOrFetchInitalData = async () => {
+    const campaigns = await db.campaigns.toArray();
+
+    if (campaigns.length > 0) {
+        return campaigns[0].id;
+    }
+    const newCampaign = await db.campaigns.add(defaultCampaign);
+
+    // Create Notes
+    await db.notes.bulkAdd(generateDefaultNotes(CAMPAIGNS[0]).map(n => ({ ...n, campaignId: newCampaign })));
+
+    return newCampaign;
+}
+
+export const importFromLocalStorage = async (state) => {
+    const stateObj = JSON.parse(state);
+
+    const campaign = {
+        day: stateObj.day,
+        campaign: stateObj.campaign,
+        location: stateObj.location,
+        terrain: stateObj.terrain
+    };
+
+    const campaignId = await db.campaigns.add(campaign);
+
+    const rangers = stateObj.rangers.map(({ name }) => ({ name, campaignId }));
+    const missions = stateObj.missions.map(({ name, day, progress, complete }) => ({ name, day, progress, complete, campaignId }));
+    const events = stateObj.events.map(({ name }) => ({ note: name, campaignId }));
+    const rewards = stateObj.rewards.map(({ name }) => ({ name, campaignId }));
+    const notes = stateObj.notes.map(({ day, note }) => ({ day, note, campaignId }));
+
+    await db.transaction('rw', [db.rangers, db.missions, db.events, db.rewards, db.notes], () => {
+        db.rangers.bulkAdd(rangers);
+        db.missions.bulkAdd(missions);
+        db.events.bulkAdd(events);
+        db.rewards.bulkAdd(rewards);
+        db.notes.bulkAdd(notes);
+    });
+
+    // Delete campaign state
+    localStorage.removeItem("campaign-state");
+
+    return campaignId;
+}
 
 export default db;

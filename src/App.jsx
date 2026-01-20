@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Tracker from "./Views/tracker";
-import db from "./database/db";
+import db, { createOrFetchInitalData, importFromLocalStorage } from "./database/db";
 import { CAMPAIGNS, defaultCampaign, generateDefaultNotes } from "./data";
 
 function App() {
@@ -9,19 +9,14 @@ function App() {
   useState(() => {
     // Create a default campaign if none exists
     const loadCampaign = async () => {
-      const campaigns = await db.campaigns.toArray();
-
-      if (campaigns.length > 0) {
-        setCampaignId(campaigns[0].id);
+      const localState = localStorage.getItem("campaign-state");
+      if (localState) {
+        const id = await importFromLocalStorage(localState);
+        setCampaignId(id);
         return;
       }
 
-      const newCampaign = await db.campaigns.add(defaultCampaign);
-
-      // Create Notes
-      await db.notes.bulkAdd(generateDefaultNotes(CAMPAIGNS[0]).map(n => ({ ...n, campaignId: newCampaign })));
-
-      // TODO: Add logic for importing localstate to db
+      const newCampaign = await createOrFetchInitalData();
 
       setCampaignId(newCampaign);
     }
