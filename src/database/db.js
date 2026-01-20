@@ -47,10 +47,12 @@ export const CHANGE_CAMPAIGN = async (id, campaign) => {
 export const CHANGE_NOTE = async (id, note) => { await db.notes.update(id, { note }) };
 
 export const createOrFetchInitalData = async () => {
+    // Getting the last campaign is a stopgap solution until multiple campaign selection is added.
     const campaigns = await db.campaigns.toArray();
 
     if (campaigns.length > 0) {
-        return campaigns[0].id;
+        const orderedCampaigns = campaigns.sort((a,b) => b.id - a.id);
+        return orderedCampaigns[0].id;
     }
     const newCampaign = await db.campaigns.add(defaultCampaign);
 
