@@ -92,4 +92,28 @@ export const importFromLocalStorage = async (state) => {
     return campaignId;
 }
 
+const idExtractor = (obj) => {
+    const {id, ...newObj} = obj;
+    return newObj;
+}
+
+export const generateExportFileForCampaign = async (campaign) => {
+    // Get all items
+    const results = await Promise.all(
+        ['rangers', 'missions', 'events', 'rewards', 'notes']
+            .map((table) => db[table].where("campaignId").equals(campaign.id).toArray())
+    )
+
+    const [rangers, missions, events, rewards, notes] = results.map((result) => result.map(obj => idExtractor(obj)));
+
+    return JSON.stringify({
+        campaign: idExtractor(campaign),
+        rangers,
+        missions,
+        events,
+        rewards,
+        notes
+    });
+}
+
 export default db;

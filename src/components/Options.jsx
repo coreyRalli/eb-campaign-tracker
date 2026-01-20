@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import { HYDRATE } from "../reducer/actions";
+import { generateExportFileForCampaign } from "../database/db";
 
-const Options = ({ state, dispatch }) => {
+const Options = ({ campaign, dispatch }) => {
     const importBtnRef = useRef(null);
 
     const handleFileChange = (e) => {
@@ -25,9 +26,9 @@ const Options = ({ state, dispatch }) => {
     }
 
     const handleExportFile = async () => {
-        const campaign = localStorage.getItem("campaign-state");
+        const campaignTxt = await generateExportFileForCampaign(campaign);
 
-        const blob = new Blob([campaign], { type: "plain/text" });
+        const blob = new Blob([campaignTxt], { type: "plain/text" });
 
         const handle = await showSaveFilePicker({
             suggestedName: `earthborne-rangers-campaign`,

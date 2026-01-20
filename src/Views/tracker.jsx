@@ -64,16 +64,14 @@ const Tracker = ({ id }) => {
 
                 <Events id={id} />
 
-                <Missions
-                    campaign={campaign}
-                    state={state}
-                    dispatch={dispatch} />
+                <Missions campaign={campaign} />
 
                 <Rewards id={id} />
 
                 <Options
                     id={id}
                     state={state}
+                    campaign={campaign}
                     dispatch={dispatch} />
 
                 <p>
