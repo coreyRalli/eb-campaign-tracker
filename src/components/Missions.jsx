@@ -65,7 +65,7 @@ const Missions = ({ state, dispatch }) => {
                             <>
                                 <p className="mission-day">Day {mission.day}</p>
                                 {
-                                    (mission.progress !== -1) &&
+                                    (mission.progress !== -1 && !mission.complete) &&
                                     <div className="mission-progress-container">
                                         <button
                                             disabled={(mission.progress <= 0)}
