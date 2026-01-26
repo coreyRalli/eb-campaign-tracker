@@ -193,3 +193,11 @@ export const generateArcologyWeather = (day) => {
   else
     return "Unknown";
 }
+
+export const defaultCampaign = {
+  day: 1,
+  campaign: CAMPAIGNS[0],
+  weather: generateWeather(1, CAMPAIGNS[0]),
+  location: LOCATIONS[0],
+  terrain: PATHS[2]
+}
