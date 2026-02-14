@@ -128,7 +128,7 @@ const DayHeader = () => {
             </div>
 
             <Select
-                options={(campaign.campaign === CAMPAIGNS[1]) ? LOCATIONS_LOTA : LOCATIONS}
+                options={(campaign.campaign === CAMPAIGNS[1]) ? [...LOCATIONS_LOTA, ...LOCATIONS] : LOCATIONS}
                 value={campaign.location}
                 id={"location-select"}
                 onChange={(value) => CHANGE_LOCATION(campaign.id, value)}
@@ -136,7 +136,7 @@ const DayHeader = () => {
                 initOptionText={"Select a location"} />
 
             <Select
-                options={(campaign.campaign === CAMPAIGNS[1]) ? PATHS_LOTA : PATHS}
+                options={(campaign.campaign === CAMPAIGNS[1]) ? [...PATHS_LOTA, ...PATHS] : PATHS}
                 value={campaign.terrain}
                 id={"terrain-select"}
                 onChange={(value) => CHANGE_TERRAIN(campaign.id, value)}
