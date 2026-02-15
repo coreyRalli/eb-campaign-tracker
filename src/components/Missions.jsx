@@ -64,7 +64,7 @@ const Missions = ({ campaign }) => {
 
             <ul className="list">
                 {
-                    missions.filter(m => m.campaign === campaign.campaign).map(mission =>
+                    missions.map(mission =>
                         <LineItem
                             onTextUpdate={(text) => UPDATE_MISSION(mission.id, text)}
                             text={mission.name}

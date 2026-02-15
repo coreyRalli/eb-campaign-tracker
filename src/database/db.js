@@ -54,14 +54,6 @@ export const createOrFetchInitalData = async () => {
         const orderedCampaigns = campaigns.sort((a,b) => b.id - a.id);
         const c = orderedCampaigns[0];
 
-        //TODO: Find a less terrible way of handling this
-        const m = await db.missions.where("campaignId").equals(c.id).toArray();
-
-        const updatedList = m.filter(m => (typeof m.campaign === "undefined")).map(nm => ({ key: nm.id, changes: { campaign: c.campaign }}));
-
-        if (updatedList > 0)
-            await db.missions.bulkUpdate(updatedList);
-
         return c.id;
     }
     const newCampaign = await db.campaigns.add(defaultCampaign);
