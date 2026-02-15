@@ -8,7 +8,7 @@ import { CAMPAIGNS } from "../data";
 
 const Missions = ({ campaign }) => {
     const { campaignId } = useContext(AppContext);
-
+    
     const missions = useLiveQuery(async () => {
         const e = await db.missions.where("campaignId").equals(campaign.id).toArray();
 
@@ -64,7 +64,7 @@ const Missions = ({ campaign }) => {
 
             <ul className="list">
                 {
-                    missions.map(mission =>
+                    missions.filter(m => m.campaign === campaign.campaign).map(mission =>
                         <LineItem
                             onTextUpdate={(text) => UPDATE_MISSION(mission.id, text)}
                             text={mission.name}
