@@ -57,7 +57,7 @@ export const createOrFetchInitalData = async () => {
         //TODO: Find a less terrible way of handling this
         const m = await db.missions.where("campaignId").equals(c.id).toArray();
 
-        const updatedList = m.filter(m => !m.campaign).map(nm => ({ key: nm.id, changes: { campaign: c.campaign }}));
+        const updatedList = m.filter(m => (typeof m.campaign === "undefined")).map(nm => ({ key: nm.id, changes: { campaign: c.campaign }}));
 
         if (updatedList > 0)
             await db.missions.bulkUpdate(updatedList);
