@@ -4,10 +4,11 @@ import LineItem from "./LineItem";
 import { useLiveQuery } from "dexie-react-hooks";
 import db, { INCREMENT_MISSION_PROGRESS, DECREMENT_MISSION_PROGRESS, SET_MISSION_COMPLETE, ADD_MISSION, UPDATE_MISSION, REMOVE_MISSION } from '../database/db';
 import { AppContext } from "../App";
+import { CAMPAIGNS } from "../data";
 
-const Missions = ({ campaign, state, dispatch }) => {
+const Missions = ({ campaign }) => {
     const { campaignId } = useContext(AppContext);
-    
+
     const missions = useLiveQuery(async () => {
         const e = await db.missions.where("campaignId").equals(campaign.id).toArray();
 
@@ -23,7 +24,7 @@ const Missions = ({ campaign, state, dispatch }) => {
 
     const onNewMissionSubmit = (e) => {
         e.preventDefault();
-        ADD_MISSION(campaign.id, newMissionText, progressChecked ? 0 : -1, campaign.day);
+        ADD_MISSION(campaign.id, newMissionText, progressChecked ? 0 : -1, campaign.day, campaign.campaign);
         setNewMissionText("");
     }
 
@@ -76,7 +77,9 @@ const Missions = ({ campaign, state, dispatch }) => {
                             onDelete={() => REMOVE_MISSION(mission.id)}>
                             {/* Mission markers */}
                             <>
-                                <p className="mission-day">Day {mission.day}</p>
+                                <p className="mission-day">
+                                    Day {mission.day} <span>{(mission.campaign === CAMPAIGNS[1] ? "(LOTA)" : "")}</span>
+                                </p>
                                 {
                                     (mission.progress !== -1 && !mission.complete) &&
                                     <div className="mission-progress-container">
