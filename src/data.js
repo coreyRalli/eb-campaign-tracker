@@ -39,6 +39,13 @@ export const LOCATIONS = [
   "The Cyrpress Citadel",
   "Michael's Bog",
   "The Greenbridge",
+  "Terra Lodge",
+  "The Otherwoods",
+  "Crystal Basin",
+  "Sentinel Peak",
+  "Arbor Mists",
+  "Nimbus Facility",
+  "The Undergrove"
 ];
 
 export const LOCATIONS_LOTA = [
@@ -97,7 +104,8 @@ export const PATHS = [
   "Ravine",
   "Swamp",
   "River",
-  "Thoroughfare (Spire In Bloom)"];
+  "Thoroughfare",
+  "Nimbus"];
 
 export const PATHS_LOTA = [
   "Ancient Ruins",
